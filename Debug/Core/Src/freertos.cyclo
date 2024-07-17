@@ -1,0 +1,4 @@
+../Core/Src/freertos.c:105:6:MX_FREERTOS_Init	1
+../Core/Src/freertos.c:153:6:StartReadBattVoltageTask	1
+../Core/Src/freertos.c:179:6:StartRenderUITask	1
+../Core/Src/freertos.c:208:6:StartPollKeypadTask	2
