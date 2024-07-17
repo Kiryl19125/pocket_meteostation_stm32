@@ -45,7 +45,8 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
  ../Core/Inc/adc.h ../Core/Inc/main.h ../Core/Inc/i2c.h ../Core/Inc/tim.h \
  ../Core/Inc/usart.h ../Core/Inc/gpio.h ../Core/Inc/ssd1306.h \
  ../Core/Inc/ssd1306_conf.h ../Core/Inc/ssd1306_tests.h \
- ../Core/Inc/ssd1306_fonts.h ../Core/Inc/ssd1306.h ../Core/Inc/Keypad.h
+ ../Core/Inc/ssd1306_fonts.h ../Core/Inc/ssd1306.h ../Core/Inc/Keypad.h \
+ ../Core/Inc/BME280.h ../Core/Inc/ds3231_for_stm32_hal.h
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h:
@@ -102,3 +103,5 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
 ../Core/Inc/ssd1306_fonts.h:
 ../Core/Inc/ssd1306.h:
 ../Core/Inc/Keypad.h:
+../Core/Inc/BME280.h:
+../Core/Inc/ds3231_for_stm32_hal.h:

@@ -1,4 +1,10 @@
-../Core/Src/freertos.c:105:6:MX_FREERTOS_Init	8	static
-../Core/Src/freertos.c:153:6:StartReadBattVoltageTask	16	static
-../Core/Src/freertos.c:179:6:StartRenderUITask	24	static
-../Core/Src/freertos.c:208:6:StartPollKeypadTask	24	static
+../Core/Src/freertos.c:165:6:MX_FREERTOS_Init	8	static
+../Core/Src/freertos.c:223:6:StartReadBattVoltageTask	16	static
+../Core/Src/freertos.c:251:6:StartRenderUITask	16	static
+../Core/Src/freertos.c:286:6:StartPollKeypadTask	16	static
+../Core/Src/freertos.c:338:6:StartReadBMEValuesTask	16	static
+../Core/Src/freertos.c:370:6:StartReadDateTimeTask	24	static
+../Core/Src/freertos.c:393:6:StartBlinkStatusLEDTask	16	static
+../Core/Src/freertos.c:408:6:showBatteryMenu	16	static
+../Core/Src/freertos.c:417:6:showTemperatureMenu	16	static
+../Core/Src/freertos.c:426:6:showTimeMenu	16	static

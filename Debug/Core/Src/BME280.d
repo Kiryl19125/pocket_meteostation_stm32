@@ -1,6 +1,4 @@
-Drivers/ds3231/ds3231_for_stm32_hal.o: \
- ../Drivers/ds3231/ds3231_for_stm32_hal.c \
- ../Drivers/ds3231/../ds3231/ds3231_for_stm32_hal.h ../Core/Inc/main.h \
+Core/Src/BME280.o: ../Core/Src/BME280.c ../Core/Inc/BME280.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h \
  ../Core/Inc/stm32f3xx_hal_conf.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_rcc.h \
@@ -33,8 +31,7 @@ Drivers/ds3231/ds3231_for_stm32_hal.o: \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h
-../Drivers/ds3231/../ds3231/ds3231_for_stm32_hal.h:
-../Core/Inc/main.h:
+../Core/Inc/BME280.h:
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h:
 ../Core/Inc/stm32f3xx_hal_conf.h:
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_rcc.h:
