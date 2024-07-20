@@ -41,6 +41,7 @@
 #include "Keypad.h"
 #include "BME280.h"
 #include "ds3231_for_stm32_hal.h"
+#include "Float_transform/Float_transform.h"
 
 /* USER CODE END Includes */
 
@@ -55,7 +56,7 @@ typedef struct
 	float preasureMMHG;
 	float humidity;
 	float altitude;
-} BMEValues;
+} BMEValues_t;
 
 typedef struct
 {
@@ -65,7 +66,7 @@ typedef struct
 	uint8_t hour;
 	uint8_t minute;
 	uint8_t second;
-} DateTime;
+} DateTime_t;
 
 typedef struct
 {
@@ -73,18 +74,19 @@ typedef struct
 	uint8_t voltage_integer_part;
 	uint8_t voltage_float_part;
 	float voltage;
-} BatteryVoltage;
+} BatteryVoltage_t;
 
 typedef enum
 {
-	BatteryMenu, TemperatureMenu, TimeMenu
-} Menu;
+	BatteryMenu, TemperatureMenu, TimeMenu, HumidityMenu
+} Menu_t;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
 #define MAX_MSG_STRING_LENGTH 100
+#define MENU_PAGES_LENGTH 4
 
 /* USER CODE END PD */
 
@@ -96,48 +98,70 @@ typedef enum
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 
+extern uint8_t sign_number;
+extern int integer_number;
+extern uint32_t fractional_number;
+
 char msg_buffer[MAX_MSG_STRING_LENGTH];
 Key key_pressed = None;
 Key previos_key = None;
 
-uint8_t menu_kursor = 2;
-Menu menu_pages[] =
-{ BatteryMenu, TemperatureMenu, TimeMenu };
+uint8_t menu_kursor = 0;
+Menu_t menu_pages[] =
+{ BatteryMenu, TemperatureMenu, TimeMenu, HumidityMenu};
 
-BatteryVoltage battery =
+BatteryVoltage_t battery =
 { 0, 0, 0.0f };
 
-DateTime date_time =
+DateTime_t date_time =
 { 0, 0, 0, 0, 0, 0 };
 
-BMEValues bme_values =
+BMEValues_t bme_values =
 { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 /* USER CODE END Variables */
 /* Definitions for readBattVoltage */
 osThreadId_t readBattVoltageHandle;
-const osThreadAttr_t readBattVoltage_attributes =
-{ .name = "readBattVoltage", .stack_size = 128 * 4, .priority = (osPriority_t) osPriorityNormal, };
+const osThreadAttr_t readBattVoltage_attributes = {
+  .name = "readBattVoltage",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* Definitions for renderUI */
 osThreadId_t renderUIHandle;
-const osThreadAttr_t renderUI_attributes =
-{ .name = "renderUI", .stack_size = 128 * 4, .priority = (osPriority_t) osPriorityAboveNormal, };
+const osThreadAttr_t renderUI_attributes = {
+  .name = "renderUI",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
 /* Definitions for pollKeypad */
 osThreadId_t pollKeypadHandle;
-const osThreadAttr_t pollKeypad_attributes =
-{ .name = "pollKeypad", .stack_size = 128 * 4, .priority = (osPriority_t) osPriorityAboveNormal, };
+const osThreadAttr_t pollKeypad_attributes = {
+  .name = "pollKeypad",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
 /* Definitions for readBMEValues */
 osThreadId_t readBMEValuesHandle;
-const osThreadAttr_t readBMEValues_attributes =
-{ .name = "readBMEValues", .stack_size = 128 * 4, .priority = (osPriority_t) osPriorityNormal, };
+const osThreadAttr_t readBMEValues_attributes = {
+  .name = "readBMEValues",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* Definitions for readDateTime */
 osThreadId_t readDateTimeHandle;
-const osThreadAttr_t readDateTime_attributes =
-{ .name = "readDateTime", .stack_size = 128 * 4, .priority = (osPriority_t) osPriorityNormal, };
+const osThreadAttr_t readDateTime_attributes = {
+  .name = "readDateTime",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* Definitions for blinkStatusLED */
 osThreadId_t blinkStatusLEDHandle;
-const osThreadAttr_t blinkStatusLED_attributes =
-{ .name = "blinkStatusLED", .stack_size = 128 * 4, .priority = (osPriority_t) osPriorityHigh, };
+const osThreadAttr_t blinkStatusLED_attributes = {
+  .name = "blinkStatusLED",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityHigh,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -145,6 +169,8 @@ const osThreadAttr_t blinkStatusLED_attributes =
 void showBatteryMenu();
 void showTemperatureMenu();
 void showTimeMenu();
+void showHumidityMenu();
+void showErrorMenu();
 
 /* USER CODE END FunctionPrototypes */
 
@@ -158,58 +184,57 @@ void StartBlinkStatusLEDTask(void *argument);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /**
- * @brief  FreeRTOS initialization
- * @param  None
- * @retval None
- */
-void MX_FREERTOS_Init(void)
-{
-	/* USER CODE BEGIN Init */
+  * @brief  FreeRTOS initialization
+  * @param  None
+  * @retval None
+  */
+void MX_FREERTOS_Init(void) {
+  /* USER CODE BEGIN Init */
 
-	/* USER CODE END Init */
+  /* USER CODE END Init */
 
-	/* USER CODE BEGIN RTOS_MUTEX */
+  /* USER CODE BEGIN RTOS_MUTEX */
 	/* add mutexes, ... */
-	/* USER CODE END RTOS_MUTEX */
+  /* USER CODE END RTOS_MUTEX */
 
-	/* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
-	/* USER CODE END RTOS_SEMAPHORES */
+  /* USER CODE END RTOS_SEMAPHORES */
 
-	/* USER CODE BEGIN RTOS_TIMERS */
+  /* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
-	/* USER CODE END RTOS_TIMERS */
+  /* USER CODE END RTOS_TIMERS */
 
-	/* USER CODE BEGIN RTOS_QUEUES */
+  /* USER CODE BEGIN RTOS_QUEUES */
 	/* add queues, ... */
-	/* USER CODE END RTOS_QUEUES */
+  /* USER CODE END RTOS_QUEUES */
 
-	/* Create the thread(s) */
-	/* creation of readBattVoltage */
-	readBattVoltageHandle = osThreadNew(StartReadBattVoltageTask, NULL, &readBattVoltage_attributes);
+  /* Create the thread(s) */
+  /* creation of readBattVoltage */
+  readBattVoltageHandle = osThreadNew(StartReadBattVoltageTask, NULL, &readBattVoltage_attributes);
 
-	/* creation of renderUI */
-	renderUIHandle = osThreadNew(StartRenderUITask, NULL, &renderUI_attributes);
+  /* creation of renderUI */
+  renderUIHandle = osThreadNew(StartRenderUITask, NULL, &renderUI_attributes);
 
-	/* creation of pollKeypad */
-	pollKeypadHandle = osThreadNew(StartPollKeypadTask, NULL, &pollKeypad_attributes);
+  /* creation of pollKeypad */
+  pollKeypadHandle = osThreadNew(StartPollKeypadTask, NULL, &pollKeypad_attributes);
 
-	/* creation of readBMEValues */
-	readBMEValuesHandle = osThreadNew(StartReadBMEValuesTask, NULL, &readBMEValues_attributes);
+  /* creation of readBMEValues */
+  readBMEValuesHandle = osThreadNew(StartReadBMEValuesTask, NULL, &readBMEValues_attributes);
 
-	/* creation of readDateTime */
-	readDateTimeHandle = osThreadNew(StartReadDateTimeTask, NULL, &readDateTime_attributes);
+  /* creation of readDateTime */
+  readDateTimeHandle = osThreadNew(StartReadDateTimeTask, NULL, &readDateTime_attributes);
 
-	/* creation of blinkStatusLED */
-	blinkStatusLEDHandle = osThreadNew(StartBlinkStatusLEDTask, NULL, &blinkStatusLED_attributes);
+  /* creation of blinkStatusLED */
+  blinkStatusLEDHandle = osThreadNew(StartBlinkStatusLEDTask, NULL, &blinkStatusLED_attributes);
 
-	/* USER CODE BEGIN RTOS_THREADS */
+  /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
-	/* USER CODE END RTOS_THREADS */
+  /* USER CODE END RTOS_THREADS */
 
-	/* USER CODE BEGIN RTOS_EVENTS */
+  /* USER CODE BEGIN RTOS_EVENTS */
 	/* add events, ... */
-	/* USER CODE END RTOS_EVENTS */
+  /* USER CODE END RTOS_EVENTS */
 
 }
 
@@ -222,7 +247,7 @@ void MX_FREERTOS_Init(void)
 /* USER CODE END Header_StartReadBattVoltageTask */
 void StartReadBattVoltageTask(void *argument)
 {
-	/* USER CODE BEGIN StartReadBattVoltageTask */
+  /* USER CODE BEGIN StartReadBattVoltageTask */
 	/* Infinite loop */
 
 	for (;;)
@@ -232,13 +257,14 @@ void StartReadBattVoltageTask(void *argument)
 		battery.raw_adc_value = HAL_ADC_GetValue(&hadc2);
 		HAL_ADC_Stop(&hadc2);
 		battery.voltage = (float) (battery.raw_adc_value * (3.3f / 4096.0f));
-		battery.voltage_integer_part = (int) battery.voltage;
-		battery.voltage_float_part = (int) ((battery.voltage - battery.voltage_integer_part) * 100); // тут костыль надо будет разобратся
+		Float_transform(battery.voltage, 2, &sign_number, &integer_number, &fractional_number);
+		battery.voltage_integer_part = integer_number;
+		battery.voltage_float_part = fractional_number; // тут костыль надо будет разобратся
 //		HAL_GPIO_TogglePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin);
 		osDelay(100);
 
 	}
-	/* USER CODE END StartReadBattVoltageTask */
+  /* USER CODE END StartReadBattVoltageTask */
 }
 
 /* USER CODE BEGIN Header_StartRenderUITask */
@@ -250,7 +276,7 @@ void StartReadBattVoltageTask(void *argument)
 /* USER CODE END Header_StartRenderUITask */
 void StartRenderUITask(void *argument)
 {
-	/* USER CODE BEGIN StartRenderUITask */
+  /* USER CODE BEGIN StartRenderUITask */
 
 	/* Infinite loop */
 	for (;;)
@@ -266,14 +292,17 @@ void StartRenderUITask(void *argument)
 		case TimeMenu:
 			showTimeMenu();
 			break;
+		case HumidityMenu:
+			showHumidityMenu();
+			break;
 		default:
-			showBatteryMenu();
+			showErrorMenu();
 			break;
 		}
 
 		osDelay(25); // refresh rate
 	}
-	/* USER CODE END StartRenderUITask */
+  /* USER CODE END StartRenderUITask */
 }
 
 /* USER CODE BEGIN Header_StartPollKeypadTask */
@@ -285,13 +314,13 @@ void StartRenderUITask(void *argument)
 /* USER CODE END Header_StartPollKeypadTask */
 void StartPollKeypadTask(void *argument)
 {
-	/* USER CODE BEGIN StartPollKeypadTask */
+  /* USER CODE BEGIN StartPollKeypadTask */
 	/* Infinite loop */
 	for (;;)
 	{
 		key_pressed = pollKeypad();
 
-		if ((previos_key != key_pressed) && (key_pressed != None))
+		if (key_pressed != None)
 		{
 			previos_key = key_pressed;
 
@@ -305,27 +334,38 @@ void StartPollKeypadTask(void *argument)
 			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
 
 			// change if needed menu cursor
-			if (key_pressed == Left && menu_kursor > 0)
+			if (key_pressed == Left)
 			{
-//				if (menu_kursor == 0)
-//				{
-//					menu_kursor = sizeof(menu_pages) / sizeof(menu_pages[0]);
-//				}
-				menu_kursor--;
+				if (menu_kursor > 0)
+				{
+					menu_kursor--;
+				}
+				else if (menu_kursor == 0)
+				{
+					menu_kursor = MENU_PAGES_LENGTH - 1; // last element if manu_pages
+				}
+
 			}
-			else if (key_pressed == Right && menu_kursor < (sizeof(menu_pages) / sizeof(menu_pages[0])))
+			else if (key_pressed == Right)
 			{
-//				if (menu_kursor == (sizeof(menu_pages) / sizeof(menu_pages[0]) - 1))
-//				{
-//					menu_kursor = 0;
-//				}
-				menu_kursor++;
+
+				if (menu_kursor < MENU_PAGES_LENGTH - 1)
+				{
+					menu_kursor++;
+				}
+				else if (menu_kursor == MENU_PAGES_LENGTH - 1)
+				{
+					menu_kursor = 0;
+				}
+
 			}
+			sprintf(msg_buffer, "menu kursor = %d\r\n", menu_kursor);
+			HAL_UART_Transmit(&huart2, (uint8_t*) msg_buffer, strlen(msg_buffer), 1000);
 
 		}
 		osDelay(100);
 	}
-	/* USER CODE END StartPollKeypadTask */
+  /* USER CODE END StartPollKeypadTask */
 }
 
 /* USER CODE BEGIN Header_StartReadBMEValuesTask */
@@ -337,7 +377,7 @@ void StartPollKeypadTask(void *argument)
 /* USER CODE END Header_StartReadBMEValuesTask */
 void StartReadBMEValuesTask(void *argument)
 {
-	/* USER CODE BEGIN StartReadBMEValuesTask */
+  /* USER CODE BEGIN StartReadBMEValuesTask */
 	/* Infinite loop */
 	for (;;)
 	{
@@ -345,19 +385,19 @@ void StartReadBMEValuesTask(void *argument)
 		bme_values.temperature = BME280_ReadTemperature();
 
 		// preasures
-//		bme_values.preasurePA = BME280_ReadPressure();
-//		bme_values.preasureHPA = bme_values.preasurePA / 1000.0f;
-//		bme_values.preasureMMHG = bme_values.preasurePA * 0.000750061683f;
+		bme_values.preasurePA = BME280_ReadPressure();
+		bme_values.preasureHPA = bme_values.preasurePA / 1000.0f;
+		bme_values.preasureMMHG = bme_values.preasurePA * 0.000750061683f;
 //
 //		// altitude
-//		bme_values.altitude = BME280_ReadAltitude(SEALEVELPRESSURE_PA);
+		bme_values.altitude = BME280_ReadAltitude(SEALEVELPRESSURE_PA);
 //
 //		// humidity
-//		bme_values.humidity = BME280_ReadHumidity();
+		bme_values.humidity = BME280_ReadHumidity();
 
 		osDelay(2000);
 	}
-	/* USER CODE END StartReadBMEValuesTask */
+  /* USER CODE END StartReadBMEValuesTask */
 }
 
 /* USER CODE BEGIN Header_StartReadDateTimeTask */
@@ -369,18 +409,16 @@ void StartReadBMEValuesTask(void *argument)
 /* USER CODE END Header_StartReadDateTimeTask */
 void StartReadDateTimeTask(void *argument)
 {
-	/* USER CODE BEGIN StartReadDateTimeTask */
+  /* USER CODE BEGIN StartReadDateTimeTask */
 	/* Infinite loop */
 	for (;;)
 	{
 		date_time.hour = DS3231_GetHour();
 		date_time.minute = DS3231_GetMinute();
 		date_time.second = DS3231_GetSecond();
-		sprintf(msg_buffer, "%d : %d : %d\r\n", date_time.hour, date_time.minute, date_time.second);
-		HAL_UART_Transmit(&huart2, (uint8_t*) msg_buffer, strlen(msg_buffer), 1000);
 		osDelay(1000);
 	}
-	/* USER CODE END StartReadDateTimeTask */
+  /* USER CODE END StartReadDateTimeTask */
 }
 
 /* USER CODE BEGIN Header_StartBlinkStatusLEDTask */
@@ -392,14 +430,14 @@ void StartReadDateTimeTask(void *argument)
 /* USER CODE END Header_StartBlinkStatusLEDTask */
 void StartBlinkStatusLEDTask(void *argument)
 {
-	/* USER CODE BEGIN StartBlinkStatusLEDTask */
+  /* USER CODE BEGIN StartBlinkStatusLEDTask */
 	/* Infinite loop */
 	for (;;)
 	{
 		HAL_GPIO_TogglePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin);
-		osDelay(1000);
+		osDelay(500);
 	}
-	/* USER CODE END StartBlinkStatusLEDTask */
+  /* USER CODE END StartBlinkStatusLEDTask */
 }
 
 /* Private application code --------------------------------------------------*/
@@ -432,5 +470,23 @@ void showTimeMenu()
 	ssd1306_UpdateScreen();
 }
 
+void showHumidityMenu()
+{
+	ssd1306_Fill(Black); // clear display
+	ssd1306_SetCursor(0, 0);
+	Float_transform(bme_values.humidity, 1, &sign_number, &integer_number, &fractional_number);
+	sprintf(msg_buffer, "%d.%.01ld%%", integer_number, fractional_number);
+	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+	ssd1306_UpdateScreen();
+}
+
+void showErrorMenu()
+{
+	ssd1306_Fill(Black); // clear display
+	ssd1306_SetCursor(0, 0);
+	sprintf(msg_buffer, "ERROR: Kursor = %d", menu_kursor);
+	ssd1306_WriteString(msg_buffer, Font_7x10, White);
+	ssd1306_UpdateScreen();
+}
 /* USER CODE END Application */
 

@@ -105,8 +105,6 @@ int main(void)
 	ssd1306_Init();
 	BME280_Init();
 	DS3231_Init(&hi2c1);
-	DS3231_SetHour(23);
-	DS3231_SetMinute(7);
 
   /* USER CODE END 2 */
 

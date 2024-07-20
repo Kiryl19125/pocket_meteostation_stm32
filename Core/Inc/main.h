@@ -57,16 +57,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Keypad_C2_OUT_Pin GPIO_PIN_13
-#define Keypad_C2_OUT_GPIO_Port GPIOC
-#define Keypad_R2_IN_Pin GPIO_PIN_0
-#define Keypad_R2_IN_GPIO_Port GPIOC
-#define Keypad_R1_IN_Pin GPIO_PIN_1
-#define Keypad_R1_IN_GPIO_Port GPIOC
-#define Keypad_C1_OUT_Pin GPIO_PIN_2
-#define Keypad_C1_OUT_GPIO_Port GPIOC
-#define Keypad_R4_IN_Pin GPIO_PIN_1
-#define Keypad_R4_IN_GPIO_Port GPIOA
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
@@ -75,18 +65,22 @@ void Error_Handler(void);
 #define BATT_ADC_GPIO_Port GPIOA
 #define BUZZER_Pin GPIO_PIN_6
 #define BUZZER_GPIO_Port GPIOA
-#define Keypad_R3_IN_Pin GPIO_PIN_0
-#define Keypad_R3_IN_GPIO_Port GPIOB
+#define BTN_UP_Pin GPIO_PIN_1
+#define BTN_UP_GPIO_Port GPIOB
+#define BTN_RIGHT_Pin GPIO_PIN_2
+#define BTN_RIGHT_GPIO_Port GPIOB
+#define BTN_DOWN_Pin GPIO_PIN_13
+#define BTN_DOWN_GPIO_Port GPIOB
+#define BTN_LEFT_Pin GPIO_PIN_14
+#define BTN_LEFT_GPIO_Port GPIOB
+#define BTN_MIDDLE_Pin GPIO_PIN_15
+#define BTN_MIDDLE_GPIO_Port GPIOB
 #define STATUS_LED_Pin GPIO_PIN_9
 #define STATUS_LED_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
-#define Keypad_C4_OUT_Pin GPIO_PIN_10
-#define Keypad_C4_OUT_GPIO_Port GPIOC
-#define Keypad_C3_OUT_Pin GPIO_PIN_12
-#define Keypad_C3_OUT_GPIO_Port GPIOC
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
 

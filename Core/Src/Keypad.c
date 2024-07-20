@@ -11,44 +11,34 @@
 Key pollKeypad()
 {
 	// check left key
-	HAL_GPIO_WritePin(Keypad_C1_OUT_GPIO_Port, Keypad_C1_OUT_Pin, GPIO_PIN_SET);
-	if (HAL_GPIO_ReadPin(Keypad_R2_IN_GPIO_Port, Keypad_R2_IN_Pin) == GPIO_PIN_SET)
+	if (HAL_GPIO_ReadPin(BTN_LEFT_GPIO_Port, BTN_LEFT_Pin) == GPIO_PIN_SET)
 	{
 		return Left;
 	}
-	HAL_GPIO_WritePin(Keypad_C1_OUT_GPIO_Port, Keypad_C1_OUT_Pin, GPIO_PIN_RESET);
 
 	// check up key
-	HAL_GPIO_WritePin(Keypad_C2_OUT_GPIO_Port, Keypad_C2_OUT_Pin, GPIO_PIN_SET);
-	if (HAL_GPIO_ReadPin(Keypad_R1_IN_GPIO_Port, Keypad_R1_IN_Pin))
+	if (HAL_GPIO_ReadPin(BTN_UP_GPIO_Port, BTN_UP_Pin) == GPIO_PIN_SET)
 	{
 		return Up;
 	}
-	HAL_GPIO_WritePin(Keypad_C2_OUT_GPIO_Port, Keypad_C2_OUT_Pin, GPIO_PIN_RESET);
 
 	// check middle key
-	HAL_GPIO_WritePin(Keypad_C2_OUT_GPIO_Port, Keypad_C2_OUT_Pin, GPIO_PIN_SET);
-	if (HAL_GPIO_ReadPin(Keypad_R2_IN_GPIO_Port, Keypad_R2_IN_Pin))
+	if (HAL_GPIO_ReadPin(BTN_MIDDLE_GPIO_Port, BTN_MIDDLE_Pin) == GPIO_PIN_SET)
 	{
 		return Middle;
 	}
-	HAL_GPIO_WritePin(Keypad_C2_OUT_GPIO_Port, Keypad_C2_OUT_Pin, GPIO_PIN_RESET);
 
 	// check down key
-	HAL_GPIO_WritePin(Keypad_C2_OUT_GPIO_Port, Keypad_C2_OUT_Pin, GPIO_PIN_SET);
-	if (HAL_GPIO_ReadPin(Keypad_R3_IN_GPIO_Port, Keypad_R3_IN_Pin))
+	if (HAL_GPIO_ReadPin(BTN_DOWN_GPIO_Port, BTN_DOWN_Pin) == GPIO_PIN_SET)
 	{
 		return Down;
 	}
-	HAL_GPIO_WritePin(Keypad_C2_OUT_GPIO_Port, Keypad_C2_OUT_Pin, GPIO_PIN_RESET);
 
 	// check right key
-	HAL_GPIO_WritePin(Keypad_C3_OUT_GPIO_Port, Keypad_C3_OUT_Pin, GPIO_PIN_SET);
-	if (HAL_GPIO_ReadPin(Keypad_R2_IN_GPIO_Port, Keypad_R2_IN_Pin))
+	if (HAL_GPIO_ReadPin(BTN_RIGHT_GPIO_Port, BTN_RIGHT_Pin) == GPIO_PIN_SET)
 	{
 		return Right;
 	}
-	HAL_GPIO_WritePin(Keypad_C3_OUT_GPIO_Port, Keypad_C3_OUT_Pin, GPIO_PIN_RESET);
 
 	return None;
 }
