@@ -51,16 +51,16 @@
 typedef struct
 {
 	float temperature;
-	float preasurePA;
-	float preasureHPA;
-	float preasureMMHG;
+	float preassurePA;
+	float preassureHPA;
+	float preassureMMHG;
 	float humidity;
 	float altitude;
 } BMEValues_t;
 
 typedef struct
 {
-	uint8_t year;
+	uint16_t year;
 	uint8_t month;
 	uint8_t day;
 	uint8_t hour;
@@ -78,7 +78,7 @@ typedef struct
 
 typedef enum
 {
-	BatteryMenu, TemperatureMenu, TimeMenu, HumidityMenu
+	BatteryMenu, TemperatureMenu, TimeMenu, HumidityMenu, PreassureMenu, AltitudeMenu
 } Menu_t;
 /* USER CODE END PTD */
 
@@ -86,7 +86,7 @@ typedef enum
 /* USER CODE BEGIN PD */
 
 #define MAX_MSG_STRING_LENGTH 100
-#define MENU_PAGES_LENGTH 4
+#define MENU_PAGES_LENGTH 6
 
 /* USER CODE END PD */
 
@@ -98,17 +98,23 @@ typedef enum
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 
+// variables for processing float numbers
 extern uint8_t sign_number;
 extern int integer_number;
 extern uint32_t fractional_number;
 
 char msg_buffer[MAX_MSG_STRING_LENGTH];
+
 Key key_pressed = None;
 Key previos_key = None;
 
 uint8_t menu_kursor = 0;
+uint8_t temp_menu_kursor = 0;
+uint8_t press_menu_kursor = 0;
+uint8_t batt_menu_kursor = 0;
+
 Menu_t menu_pages[] =
-{ BatteryMenu, TemperatureMenu, TimeMenu, HumidityMenu};
+{ TimeMenu, TemperatureMenu, HumidityMenu, PreassureMenu, AltitudeMenu, BatteryMenu };
 
 BatteryVoltage_t battery =
 { 0, 0, 0.0f };
@@ -122,55 +128,46 @@ BMEValues_t bme_values =
 /* USER CODE END Variables */
 /* Definitions for readBattVoltage */
 osThreadId_t readBattVoltageHandle;
-const osThreadAttr_t readBattVoltage_attributes = {
-  .name = "readBattVoltage",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
+const osThreadAttr_t readBattVoltage_attributes =
+{ .name = "readBattVoltage", .stack_size = 256 * 4, .priority = (osPriority_t) osPriorityNormal, };
 /* Definitions for renderUI */
 osThreadId_t renderUIHandle;
-const osThreadAttr_t renderUI_attributes = {
-  .name = "renderUI",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal,
-};
+const osThreadAttr_t renderUI_attributes =
+{ .name = "renderUI", .stack_size = 256 * 4, .priority = (osPriority_t) osPriorityAboveNormal, };
 /* Definitions for pollKeypad */
 osThreadId_t pollKeypadHandle;
-const osThreadAttr_t pollKeypad_attributes = {
-  .name = "pollKeypad",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal,
-};
+const osThreadAttr_t pollKeypad_attributes =
+{ .name = "pollKeypad", .stack_size = 256 * 4, .priority = (osPriority_t) osPriorityAboveNormal, };
 /* Definitions for readBMEValues */
 osThreadId_t readBMEValuesHandle;
-const osThreadAttr_t readBMEValues_attributes = {
-  .name = "readBMEValues",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
+const osThreadAttr_t readBMEValues_attributes =
+{ .name = "readBMEValues", .stack_size = 256 * 4, .priority = (osPriority_t) osPriorityNormal, };
 /* Definitions for readDateTime */
 osThreadId_t readDateTimeHandle;
-const osThreadAttr_t readDateTime_attributes = {
-  .name = "readDateTime",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
+const osThreadAttr_t readDateTime_attributes =
+{ .name = "readDateTime", .stack_size = 256 * 4, .priority = (osPriority_t) osPriorityNormal, };
 /* Definitions for blinkStatusLED */
 osThreadId_t blinkStatusLEDHandle;
-const osThreadAttr_t blinkStatusLED_attributes = {
-  .name = "blinkStatusLED",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityHigh,
-};
+const osThreadAttr_t blinkStatusLED_attributes =
+{ .name = "blinkStatusLED", .stack_size = 256 * 4, .priority = (osPriority_t) osPriorityHigh, };
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
-void showBatteryMenu();
-void showTemperatureMenu();
-void showTimeMenu();
-void showHumidityMenu();
-void showErrorMenu();
+static void showBatteryMenuVolts();
+static void showBatteryMenuPercent();
+
+static void showTemperatureMenu();
+static void showTemperatureMenuF();
+
+static void showTimeMenu();
+static void showHumidityMenu();
+static void showAltitudeMenu();
+
+static void showPressureMenuHPA();
+static void showPressureMenuMMHG();
+
+static void processKey(Key key);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -184,57 +181,58 @@ void StartBlinkStatusLEDTask(void *argument);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /**
-  * @brief  FreeRTOS initialization
-  * @param  None
-  * @retval None
-  */
-void MX_FREERTOS_Init(void) {
-  /* USER CODE BEGIN Init */
+ * @brief  FreeRTOS initialization
+ * @param  None
+ * @retval None
+ */
+void MX_FREERTOS_Init(void)
+{
+	/* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* USER CODE BEGIN RTOS_MUTEX */
+	/* USER CODE BEGIN RTOS_MUTEX */
 	/* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
+	/* USER CODE END RTOS_MUTEX */
 
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
+	/* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
+	/* USER CODE END RTOS_SEMAPHORES */
 
-  /* USER CODE BEGIN RTOS_TIMERS */
+	/* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
+	/* USER CODE END RTOS_TIMERS */
 
-  /* USER CODE BEGIN RTOS_QUEUES */
+	/* USER CODE BEGIN RTOS_QUEUES */
 	/* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
+	/* USER CODE END RTOS_QUEUES */
 
-  /* Create the thread(s) */
-  /* creation of readBattVoltage */
-  readBattVoltageHandle = osThreadNew(StartReadBattVoltageTask, NULL, &readBattVoltage_attributes);
+	/* Create the thread(s) */
+	/* creation of readBattVoltage */
+	readBattVoltageHandle = osThreadNew(StartReadBattVoltageTask, NULL, &readBattVoltage_attributes);
 
-  /* creation of renderUI */
-  renderUIHandle = osThreadNew(StartRenderUITask, NULL, &renderUI_attributes);
+	/* creation of renderUI */
+	renderUIHandle = osThreadNew(StartRenderUITask, NULL, &renderUI_attributes);
 
-  /* creation of pollKeypad */
-  pollKeypadHandle = osThreadNew(StartPollKeypadTask, NULL, &pollKeypad_attributes);
+	/* creation of pollKeypad */
+	pollKeypadHandle = osThreadNew(StartPollKeypadTask, NULL, &pollKeypad_attributes);
 
-  /* creation of readBMEValues */
-  readBMEValuesHandle = osThreadNew(StartReadBMEValuesTask, NULL, &readBMEValues_attributes);
+	/* creation of readBMEValues */
+	readBMEValuesHandle = osThreadNew(StartReadBMEValuesTask, NULL, &readBMEValues_attributes);
 
-  /* creation of readDateTime */
-  readDateTimeHandle = osThreadNew(StartReadDateTimeTask, NULL, &readDateTime_attributes);
+	/* creation of readDateTime */
+	readDateTimeHandle = osThreadNew(StartReadDateTimeTask, NULL, &readDateTime_attributes);
 
-  /* creation of blinkStatusLED */
-  blinkStatusLEDHandle = osThreadNew(StartBlinkStatusLEDTask, NULL, &blinkStatusLED_attributes);
+	/* creation of blinkStatusLED */
+	blinkStatusLEDHandle = osThreadNew(StartBlinkStatusLEDTask, NULL, &blinkStatusLED_attributes);
 
-  /* USER CODE BEGIN RTOS_THREADS */
+	/* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
-  /* USER CODE END RTOS_THREADS */
+	/* USER CODE END RTOS_THREADS */
 
-  /* USER CODE BEGIN RTOS_EVENTS */
+	/* USER CODE BEGIN RTOS_EVENTS */
 	/* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
+	/* USER CODE END RTOS_EVENTS */
 
 }
 
@@ -247,7 +245,7 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartReadBattVoltageTask */
 void StartReadBattVoltageTask(void *argument)
 {
-  /* USER CODE BEGIN StartReadBattVoltageTask */
+	/* USER CODE BEGIN StartReadBattVoltageTask */
 	/* Infinite loop */
 
 	for (;;)
@@ -259,12 +257,11 @@ void StartReadBattVoltageTask(void *argument)
 		battery.voltage = (float) (battery.raw_adc_value * (3.3f / 4096.0f));
 		Float_transform(battery.voltage, 2, &sign_number, &integer_number, &fractional_number);
 		battery.voltage_integer_part = integer_number;
-		battery.voltage_float_part = fractional_number; // тут костыль надо будет разобратся
-//		HAL_GPIO_TogglePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin);
+		battery.voltage_float_part = fractional_number;
 		osDelay(100);
 
 	}
-  /* USER CODE END StartReadBattVoltageTask */
+	/* USER CODE END StartReadBattVoltageTask */
 }
 
 /* USER CODE BEGIN Header_StartRenderUITask */
@@ -276,7 +273,7 @@ void StartReadBattVoltageTask(void *argument)
 /* USER CODE END Header_StartRenderUITask */
 void StartRenderUITask(void *argument)
 {
-  /* USER CODE BEGIN StartRenderUITask */
+	/* USER CODE BEGIN StartRenderUITask */
 
 	/* Infinite loop */
 	for (;;)
@@ -284,10 +281,16 @@ void StartRenderUITask(void *argument)
 		switch (menu_pages[menu_kursor])
 		{
 		case BatteryMenu:
-			showBatteryMenu();
+			if (batt_menu_kursor == 0)
+				showBatteryMenuPercent();
+			else if (batt_menu_kursor == 1)
+				showBatteryMenuVolts();
 			break;
 		case TemperatureMenu:
-			showTemperatureMenu();
+			if (temp_menu_kursor == 0)
+				showTemperatureMenu();
+			else if (temp_menu_kursor == 1)
+				showTemperatureMenuF();
 			break;
 		case TimeMenu:
 			showTimeMenu();
@@ -295,14 +298,23 @@ void StartRenderUITask(void *argument)
 		case HumidityMenu:
 			showHumidityMenu();
 			break;
+		case PreassureMenu:
+			if (press_menu_kursor == 0)
+				showPressureMenuMMHG();
+			else if (press_menu_kursor == 1)
+				showPressureMenuHPA();
+			break;
+		case AltitudeMenu:
+			showAltitudeMenu();
+			break;
 		default:
-			showErrorMenu();
+			showTimeMenu();
 			break;
 		}
 
 		osDelay(25); // refresh rate
 	}
-  /* USER CODE END StartRenderUITask */
+	/* USER CODE END StartRenderUITask */
 }
 
 /* USER CODE BEGIN Header_StartPollKeypadTask */
@@ -314,7 +326,7 @@ void StartRenderUITask(void *argument)
 /* USER CODE END Header_StartPollKeypadTask */
 void StartPollKeypadTask(void *argument)
 {
-  /* USER CODE BEGIN StartPollKeypadTask */
+	/* USER CODE BEGIN StartPollKeypadTask */
 	/* Infinite loop */
 	for (;;)
 	{
@@ -324,48 +336,17 @@ void StartPollKeypadTask(void *argument)
 		{
 			previos_key = key_pressed;
 
-			// print key for debugging
-			sprintf(msg_buffer, "Key pressed: %s\r\n", keyToString(key_pressed));
-			HAL_UART_Transmit(&huart2, (uint8_t*) msg_buffer, strlen(msg_buffer), 1000);
-
 			// make beep sound
 			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
 			osDelay(100);
 			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
 
 			// change if needed menu cursor
-			if (key_pressed == Left)
-			{
-				if (menu_kursor > 0)
-				{
-					menu_kursor--;
-				}
-				else if (menu_kursor == 0)
-				{
-					menu_kursor = MENU_PAGES_LENGTH - 1; // last element if manu_pages
-				}
-
-			}
-			else if (key_pressed == Right)
-			{
-
-				if (menu_kursor < MENU_PAGES_LENGTH - 1)
-				{
-					menu_kursor++;
-				}
-				else if (menu_kursor == MENU_PAGES_LENGTH - 1)
-				{
-					menu_kursor = 0;
-				}
-
-			}
-			sprintf(msg_buffer, "menu kursor = %d\r\n", menu_kursor);
-			HAL_UART_Transmit(&huart2, (uint8_t*) msg_buffer, strlen(msg_buffer), 1000);
-
+			processKey(key_pressed);
 		}
 		osDelay(100);
 	}
-  /* USER CODE END StartPollKeypadTask */
+	/* USER CODE END StartPollKeypadTask */
 }
 
 /* USER CODE BEGIN Header_StartReadBMEValuesTask */
@@ -377,7 +358,7 @@ void StartPollKeypadTask(void *argument)
 /* USER CODE END Header_StartReadBMEValuesTask */
 void StartReadBMEValuesTask(void *argument)
 {
-  /* USER CODE BEGIN StartReadBMEValuesTask */
+	/* USER CODE BEGIN StartReadBMEValuesTask */
 	/* Infinite loop */
 	for (;;)
 	{
@@ -385,9 +366,9 @@ void StartReadBMEValuesTask(void *argument)
 		bme_values.temperature = BME280_ReadTemperature();
 
 		// preasures
-		bme_values.preasurePA = BME280_ReadPressure();
-		bme_values.preasureHPA = bme_values.preasurePA / 1000.0f;
-		bme_values.preasureMMHG = bme_values.preasurePA * 0.000750061683f;
+		bme_values.preassurePA = BME280_ReadPressure();
+		bme_values.preassureHPA = bme_values.preassurePA / 1000.0f;
+		bme_values.preassureMMHG = bme_values.preassurePA * 0.000750061683f;
 //
 //		// altitude
 		bme_values.altitude = BME280_ReadAltitude(SEALEVELPRESSURE_PA);
@@ -397,7 +378,7 @@ void StartReadBMEValuesTask(void *argument)
 
 		osDelay(2000);
 	}
-  /* USER CODE END StartReadBMEValuesTask */
+	/* USER CODE END StartReadBMEValuesTask */
 }
 
 /* USER CODE BEGIN Header_StartReadDateTimeTask */
@@ -409,16 +390,20 @@ void StartReadBMEValuesTask(void *argument)
 /* USER CODE END Header_StartReadDateTimeTask */
 void StartReadDateTimeTask(void *argument)
 {
-  /* USER CODE BEGIN StartReadDateTimeTask */
+	/* USER CODE BEGIN StartReadDateTimeTask */
 	/* Infinite loop */
 	for (;;)
 	{
 		date_time.hour = DS3231_GetHour();
 		date_time.minute = DS3231_GetMinute();
 		date_time.second = DS3231_GetSecond();
-		osDelay(1000);
+
+		date_time.year = DS3231_GetYear();
+		date_time.month = DS3231_GetMonth();
+		date_time.day = DS3231_GetDate();
+		osDelay(100);
 	}
-  /* USER CODE END StartReadDateTimeTask */
+	/* USER CODE END StartReadDateTimeTask */
 }
 
 /* USER CODE BEGIN Header_StartBlinkStatusLEDTask */
@@ -430,63 +415,216 @@ void StartReadDateTimeTask(void *argument)
 /* USER CODE END Header_StartBlinkStatusLEDTask */
 void StartBlinkStatusLEDTask(void *argument)
 {
-  /* USER CODE BEGIN StartBlinkStatusLEDTask */
+	/* USER CODE BEGIN StartBlinkStatusLEDTask */
 	/* Infinite loop */
 	for (;;)
 	{
 		HAL_GPIO_TogglePin(STATUS_LED_GPIO_Port, STATUS_LED_Pin);
 		osDelay(500);
 	}
-  /* USER CODE END StartBlinkStatusLEDTask */
+	/* USER CODE END StartBlinkStatusLEDTask */
 }
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
 
-void showBatteryMenu()
+static void showBatteryMenuVolts()
 {
 	ssd1306_Fill(Black); // clear display
-	ssd1306_SetCursor(20, 5);
+
+	ssd1306_SetCursor(0, 0);
+	ssd1306_WriteString("Battery voltage", Font_7x10, White);
+
+	ssd1306_SetCursor(0, 14);
 	sprintf(msg_buffer, "%d.%02d V", battery.voltage_integer_part, battery.voltage_float_part);
-	ssd1306_WriteString(msg_buffer, Font_16x26, White);
-	ssd1306_UpdateScreen();
-}
-
-void showTemperatureMenu()
-{
-	ssd1306_Fill(Black); // clear display
-	ssd1306_SetCursor(0, 0);
-	sprintf(msg_buffer, "%d *C", (int) bme_values.temperature);
 	ssd1306_WriteString(msg_buffer, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
 
-void showTimeMenu()
+static void showBatteryMenuPercent()
 {
 	ssd1306_Fill(Black); // clear display
+
 	ssd1306_SetCursor(0, 0);
-	sprintf(msg_buffer, "%d : %d : %d", date_time.hour, date_time.minute, date_time.second);
-	ssd1306_WriteString(msg_buffer, Font_7x10, White);
+	ssd1306_WriteString("Battery percentage", Font_7x10, White);
+
+	ssd1306_SetCursor(0, 14);
+	sprintf(msg_buffer, "%d.%01d %%", 69, 9); //TODO
+	ssd1306_WriteString(msg_buffer, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
 
-void showHumidityMenu()
+static void showTemperatureMenu()
 {
 	ssd1306_Fill(Black); // clear display
+
 	ssd1306_SetCursor(0, 0);
+	ssd1306_WriteString("Temperature", Font_7x10, White);
+
+	ssd1306_SetCursor(0, 14);
+	Float_transform(bme_values.temperature, 1, &sign_number, &integer_number, &fractional_number);
+	sprintf(msg_buffer, "%d.%.01ld *C", integer_number, fractional_number);
+	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+	ssd1306_UpdateScreen();
+}
+
+static void showTemperatureMenuF()
+{
+	ssd1306_Fill(Black); // clear display
+
+	ssd1306_SetCursor(0, 0);
+	ssd1306_WriteString("Temperature", Font_7x10, White);
+
+	ssd1306_SetCursor(0, 14);
+	Float_transform(bme_values.temperature * (9.0f/5.0f) + 32, 1, &sign_number, &integer_number, &fractional_number);
+	sprintf(msg_buffer, "%d.%.01ld *F", integer_number, fractional_number);
+	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+	ssd1306_UpdateScreen();
+}
+
+static void showTimeMenu()
+{
+	ssd1306_Fill(Black); // clear display
+
+	ssd1306_SetCursor(0, 0);
+	sprintf(msg_buffer, "%d/%d/%d", date_time.day, date_time.month, date_time.year);
+	ssd1306_WriteString(msg_buffer, Font_7x10, White);
+
+	ssd1306_SetCursor(0, 12);
+	sprintf(msg_buffer, "%d:%d:%d", date_time.hour, date_time.minute, date_time.second);
+	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+
+	ssd1306_UpdateScreen();
+}
+
+static void showHumidityMenu()
+{
+	ssd1306_Fill(Black); // clear display
+
+	ssd1306_SetCursor(0, 0);
+	ssd1306_WriteString("Humidity", Font_7x10, White);
+
+	ssd1306_SetCursor(0, 14);
 	Float_transform(bme_values.humidity, 1, &sign_number, &integer_number, &fractional_number);
-	sprintf(msg_buffer, "%d.%.01ld%%", integer_number, fractional_number);
+	sprintf(msg_buffer, "%d.%.01ld %%", integer_number, fractional_number);
 	ssd1306_WriteString(msg_buffer, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
 
-void showErrorMenu()
+static void showAltitudeMenu()
 {
 	ssd1306_Fill(Black); // clear display
+
 	ssd1306_SetCursor(0, 0);
-	sprintf(msg_buffer, "ERROR: Kursor = %d", menu_kursor);
-	ssd1306_WriteString(msg_buffer, Font_7x10, White);
+	ssd1306_WriteString("Altitude", Font_7x10, White);
+
+	ssd1306_SetCursor(0, 14);
+	Float_transform(bme_values.altitude, 1, &sign_number, &integer_number, &fractional_number);
+	sprintf(msg_buffer, "%d.%.01ld m", integer_number, fractional_number);
+	ssd1306_WriteString(msg_buffer, Font_11x18, White);
 	ssd1306_UpdateScreen();
+}
+
+static void showPressureMenuHPA()
+{
+	ssd1306_Fill(Black); // clear display
+
+	ssd1306_SetCursor(0, 0);
+	ssd1306_WriteString("Pressure", Font_7x10, White);
+
+	ssd1306_SetCursor(0, 14);
+	Float_transform(bme_values.preassureHPA, 1, &sign_number, &integer_number, &fractional_number);
+	sprintf(msg_buffer, "%d.%.01ld hPA", integer_number, fractional_number);
+	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+	ssd1306_UpdateScreen();
+
+
+}
+
+static void showPressureMenuMMHG()
+{
+	ssd1306_Fill(Black); // clear display
+
+	ssd1306_SetCursor(0, 0);
+	ssd1306_WriteString("Pressure", Font_7x10, White);
+
+	ssd1306_SetCursor(0, 14);
+	Float_transform(bme_values.preassureMMHG, 1, &sign_number, &integer_number, &fractional_number);
+	sprintf(msg_buffer, "%d.%.01ld mmHg", integer_number, fractional_number);
+	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+	ssd1306_UpdateScreen();
+}
+
+static void processKey(Key key)
+{
+	if (key == Left)
+	{
+		if (menu_kursor > 0)
+		{
+			menu_kursor--;
+		}
+		else if (menu_kursor == 0)
+		{
+			menu_kursor = MENU_PAGES_LENGTH - 1; // last element if manu_pages
+		}
+
+	}
+	else if (key == Right)
+	{
+
+		if (menu_kursor < MENU_PAGES_LENGTH - 1)
+		{
+			menu_kursor++;
+		}
+		else if (menu_kursor == MENU_PAGES_LENGTH - 1)
+		{
+			menu_kursor = 0;
+		}
+	}
+	else if(key == Up)
+	{
+		if (menu_pages[menu_kursor] == TemperatureMenu)
+		{
+			if (temp_menu_kursor == 0)
+				temp_menu_kursor = 1;
+			else if (temp_menu_kursor == 1)
+				temp_menu_kursor = 0;
+		}
+		if (menu_pages[menu_kursor] == PreassureMenu){
+			if (press_menu_kursor == 0)
+				press_menu_kursor = 1;
+			else if (press_menu_kursor == 1)
+				press_menu_kursor = 0;
+		}
+		if (menu_pages[menu_kursor] == BatteryMenu){
+			if (batt_menu_kursor == 0)
+				batt_menu_kursor = 1;
+			else if (batt_menu_kursor == 1)
+				batt_menu_kursor = 0;
+		}
+	} else if (key == Down)
+	{
+		if (menu_pages[menu_kursor] == TemperatureMenu)
+		{
+			if (temp_menu_kursor == 0)
+				temp_menu_kursor = 1;
+			else if (temp_menu_kursor == 1)
+				temp_menu_kursor = 0;
+		}
+		if (menu_pages[menu_kursor] == PreassureMenu)
+		{
+			if (press_menu_kursor == 0)
+				press_menu_kursor = 1;
+			else if (press_menu_kursor == 1)
+				press_menu_kursor = 0;
+		}
+		if (menu_pages[menu_kursor] == BatteryMenu){
+			if (batt_menu_kursor == 0)
+				batt_menu_kursor = 1;
+			else if (batt_menu_kursor == 1)
+				batt_menu_kursor = 0;
+		}
+	}
 }
 /* USER CODE END Application */
 
