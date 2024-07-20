@@ -74,6 +74,7 @@ typedef struct
 	uint8_t voltage_integer_part;
 	uint8_t voltage_float_part;
 	float voltage;
+	float percentage;
 } BatteryVoltage_t;
 
 typedef enum
@@ -105,6 +106,8 @@ extern uint32_t fractional_number;
 
 char msg_buffer[MAX_MSG_STRING_LENGTH];
 
+bool setTimeMode = false;
+
 Key key_pressed = None;
 Key previos_key = None;
 
@@ -117,7 +120,7 @@ Menu_t menu_pages[] =
 { TimeMenu, TemperatureMenu, HumidityMenu, PreassureMenu, AltitudeMenu, BatteryMenu };
 
 BatteryVoltage_t battery =
-{ 0, 0, 0.0f };
+{ 0, 0, 0.0f, 0.0f};
 
 DateTime_t date_time =
 { 0, 0, 0, 0, 0, 0 };
@@ -255,6 +258,7 @@ void StartReadBattVoltageTask(void *argument)
 		battery.raw_adc_value = HAL_ADC_GetValue(&hadc2);
 		HAL_ADC_Stop(&hadc2);
 		battery.voltage = (float) (battery.raw_adc_value * (3.3f / 4096.0f));
+		battery.percentage = (100.0f * battery.raw_adc_value) / 4095.0f;
 		Float_transform(battery.voltage, 2, &sign_number, &integer_number, &fractional_number);
 		battery.voltage_integer_part = integer_number;
 		battery.voltage_float_part = fractional_number;
@@ -401,7 +405,7 @@ void StartReadDateTimeTask(void *argument)
 		date_time.year = DS3231_GetYear();
 		date_time.month = DS3231_GetMonth();
 		date_time.day = DS3231_GetDate();
-		osDelay(100);
+		osDelay(500);
 	}
 	/* USER CODE END StartReadDateTimeTask */
 }
@@ -449,7 +453,8 @@ static void showBatteryMenuPercent()
 	ssd1306_WriteString("Battery percentage", Font_7x10, White);
 
 	ssd1306_SetCursor(0, 14);
-	sprintf(msg_buffer, "%d.%01d %%", 69, 9); //TODO
+	Float_transform(battery.percentage, 1, &sign_number, &integer_number, &fractional_number);
+	sprintf(msg_buffer, "%d.%01ld %%", integer_number, fractional_number);
 	ssd1306_WriteString(msg_buffer, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
