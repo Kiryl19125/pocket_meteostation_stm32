@@ -89,7 +89,7 @@ typedef struct
 
 typedef enum
 {
-	BatteryMenu, TemperatureMenu, TimeMenu, HumidityMenu, PreassureMenu, AltitudeMenu
+	BatteryMenu, TemperatureMenu, TimeMenu, HumidityMenu, PreassureMenu, AltitudeMenu, SettingsMenu
 } Menu_t;
 /* USER CODE END PTD */
 
@@ -97,7 +97,7 @@ typedef enum
 /* USER CODE BEGIN PD */
 
 #define MAX_MSG_STRING_LENGTH 100
-#define MENU_PAGES_LENGTH 6
+#define MENU_PAGES_LENGTH 7
 
 /* USER CODE END PD */
 
@@ -116,8 +116,6 @@ extern uint32_t fractional_number;
 
 char msg_buffer[MAX_MSG_STRING_LENGTH];
 
-bool setTimeMode = false;
-
 Key key_pressed = None;
 Key previos_key = None;
 
@@ -125,9 +123,14 @@ uint8_t menu_kursor = 0;
 uint8_t temp_menu_kursor = 0;
 uint8_t press_menu_kursor = 0;
 uint8_t batt_menu_kursor = 0;
+uint8_t settings_menu_cursor = 0;
+uint8_t set_time_cursor = 0;
+
+bool soundOn = true;
+bool setTimeMode = false;
 
 Menu_t menu_pages[] =
-{ TimeMenu, TemperatureMenu, HumidityMenu, PreassureMenu, AltitudeMenu, BatteryMenu };
+{ TimeMenu, TemperatureMenu, HumidityMenu, PreassureMenu, AltitudeMenu, BatteryMenu, SettingsMenu };
 
 BatteryVoltage_t battery =
 { 0, 0, 0.0f, 0.0f };
@@ -184,6 +187,8 @@ static void showAltitudeMenu();
 
 static void showPressureMenuHPA();
 static void showPressureMenuMMHG();
+
+static void showSettingsMenu();
 
 static void processKey(Key key);
 
@@ -314,18 +319,7 @@ void StartRenderUITask(void *argument)
 				showTemperatureMenuF();
 			break;
 		case TimeMenu:
-			if (setTimeMode)
-			{
-				vTaskSuspend(readDateTimeHandle);
-				showSetTimeMenu();
-			}
-
-			else if (!setTimeMode)
-			{
-				vTaskResume(readDateTimeHandle);
-				showTimeMenu();
-			}
-
+			showTimeMenu();
 			break;
 		case HumidityMenu:
 			showHumidityMenu();
@@ -338,6 +332,18 @@ void StartRenderUITask(void *argument)
 			break;
 		case AltitudeMenu:
 			showAltitudeMenu();
+			break;
+		case SettingsMenu:
+			if (setTimeMode)
+			{
+				vTaskSuspend(readDateTimeHandle);
+				showSetTimeMenu();
+			}
+			else
+			{
+				vTaskResume(readDateTimeHandle);
+				showSettingsMenu();
+			}
 			break;
 		default:
 			showTimeMenu();
@@ -526,11 +532,10 @@ static void showTimeMenu()
 
 static void showSetTimeMenu()
 {
-	ssd1306_Fill(Black); // clear display
 
-	ssd1306_DrawRectangle(0, 0, 127, 31, White);
-	ssd1306_SetCursor(4, 2);
-
+//	ssd1306_DrawRectangle(0, 0, 127, 31, White);
+//	ssd1306_SetCursor(4, 2);
+//
 	set_date_time.year = date_time.year;
 	set_date_time.month = date_time.month;
 	set_date_time.day = date_time.day;
@@ -538,13 +543,60 @@ static void showSetTimeMenu()
 	set_date_time.minute = date_time.minute;
 	set_date_time.second = date_time.second;
 
-	sprintf(msg_buffer, "%d/%d/%d", set_date_time.day, set_date_time.month, set_date_time.year);
-	ssd1306_WriteString(msg_buffer, Font_7x10, White);
+	ssd1306_Fill(Black); // clear display
 
-	ssd1306_SetCursor(4, 11);
-	sprintf(msg_buffer, "%d:%d:%d", set_date_time.hour, set_date_time.minute, set_date_time.second);
-	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+
+
+	if (set_time_cursor >= 0 && set_time_cursor < 3)
+	{
+		// first page
+		ssd1306_SetCursor(10, 0);
+		sprintf(msg_buffer, "Year: %d", set_date_time.year);
+		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+
+		ssd1306_SetCursor(10, 11);
+		sprintf(msg_buffer, "Month: %d", set_date_time.month);
+		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+
+		ssd1306_SetCursor(10, 22);
+		sprintf(msg_buffer, "Day: %d", set_date_time.day);
+		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+
+		ssd1306_SetCursor(0, (set_time_cursor * 10) + 1);
+		ssd1306_WriteString(">", Font_7x10, White);
+		ssd1306_SetCursor(120, (set_time_cursor * 10) + 1);
+		ssd1306_WriteString("<", Font_7x10, White);
+	}
+	else if (set_time_cursor >= 3 && set_time_cursor < 6)
+	{
+		// second page
+		ssd1306_SetCursor(10, 0);
+		sprintf(msg_buffer, "Hour: %d", set_date_time.hour);
+		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+
+		ssd1306_SetCursor(10, 11);
+		sprintf(msg_buffer, "Minute: %d", set_date_time.minute);
+		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+
+		ssd1306_SetCursor(10, 22);
+		sprintf(msg_buffer, "Second: %d", set_date_time.second);
+		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+
+		ssd1306_SetCursor(0, ((set_time_cursor - 3) * 10) + 1);
+		ssd1306_WriteString(">", Font_7x10, White);
+		ssd1306_SetCursor(120, ((set_time_cursor - 3) * 10) + 1);
+		ssd1306_WriteString("<", Font_7x10, White);
+	}
+
 	ssd1306_UpdateScreen();
+//
+//	sprintf(msg_buffer, "%d/%d/%d", set_date_time.day, set_date_time.month, set_date_time.year);
+//	ssd1306_WriteString(msg_buffer, Font_7x10, White);
+//
+//	ssd1306_SetCursor(4, 11);
+//	sprintf(msg_buffer, "%d:%d:%d", set_date_time.hour, set_date_time.minute, set_date_time.second);
+//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+//	ssd1306_UpdateScreen();
 }
 
 static void showHumidityMenu()
@@ -604,30 +656,63 @@ static void showPressureMenuMMHG()
 	ssd1306_UpdateScreen();
 }
 
+static void showSettingsMenu()
+{
+	ssd1306_Fill(Black);
+
+	ssd1306_SetCursor(10, 0);
+	if (soundOn)
+		ssd1306_WriteString("Sound: ON", Font_7x10, White);
+	else if (!soundOn)
+		ssd1306_WriteString("Sound: OFF", Font_7x10, White);
+
+	ssd1306_SetCursor(10, 12);
+	ssd1306_WriteString("Set time", Font_7x10, White);
+
+	ssd1306_SetCursor(0, (settings_menu_cursor * 10) + 2);
+	ssd1306_WriteString(">", Font_7x10, White);
+	ssd1306_SetCursor(120, (settings_menu_cursor * 10) + 2);
+	ssd1306_WriteString("<", Font_7x10, White);
+
+	ssd1306_UpdateScreen();
+}
+
 static void makeBeepSound()
 {
-	// make beep sound
-	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
-	osDelay(100);
-	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+	if (soundOn)
+	{
+		// make beep sound
+		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
+		osDelay(100);
+		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+	}
 }
 
 static void processKey(Key key)
 {
 	if (key == Left)
 	{
-		if (menu_kursor > 0)
+		if (setTimeMode)
 		{
-			menu_kursor--;
+			makeBeepSound();
+			setTimeMode = false;
 		}
-		else if (menu_kursor == 0)
+		else
 		{
-			menu_kursor = MENU_PAGES_LENGTH - 1; // last element if manu_pages
+			makeBeepSound();
+			if (menu_kursor > 0)
+			{
+				menu_kursor--;
+			}
+			else if (menu_kursor == 0)
+			{
+				menu_kursor = MENU_PAGES_LENGTH - 1; // last element if manu_pages
+			}
 		}
-
 	}
-	else if (key == Right)
+	else if (key == Right && !setTimeMode)
 	{
+		makeBeepSound();
 		if (menu_kursor < MENU_PAGES_LENGTH - 1)
 		{
 			menu_kursor++;
@@ -639,61 +724,102 @@ static void processKey(Key key)
 	}
 	else if (key == Up)
 	{
-		if (menu_pages[menu_kursor] == TemperatureMenu)
+		if (setTimeMode)
 		{
-			if (temp_menu_kursor == 0)
-				temp_menu_kursor = 1;
-			else if (temp_menu_kursor == 1)
-				temp_menu_kursor = 0;
+			makeBeepSound();
+			if (set_time_cursor > 0)
+				set_time_cursor--;
 		}
-		if (menu_pages[menu_kursor] == PreassureMenu)
+		else
 		{
-			if (press_menu_kursor == 0)
-				press_menu_kursor = 1;
-			else if (press_menu_kursor == 1)
-				press_menu_kursor = 0;
+			if (menu_pages[menu_kursor] == TemperatureMenu)
+			{
+				makeBeepSound();
+				if (temp_menu_kursor == 0)
+					temp_menu_kursor = 1;
+				else if (temp_menu_kursor == 1)
+					temp_menu_kursor = 0;
+			}
+			if (menu_pages[menu_kursor] == PreassureMenu)
+			{
+				makeBeepSound();
+				if (press_menu_kursor == 0)
+					press_menu_kursor = 1;
+				else if (press_menu_kursor == 1)
+					press_menu_kursor = 0;
+			}
+			if (menu_pages[menu_kursor] == BatteryMenu)
+			{
+				makeBeepSound();
+				if (batt_menu_kursor == 0)
+					batt_menu_kursor = 1;
+				else if (batt_menu_kursor == 1)
+					batt_menu_kursor = 0;
+			}
+			if (menu_pages[menu_kursor] == SettingsMenu)
+			{
+				makeBeepSound();
+				if (settings_menu_cursor > 0)
+					settings_menu_cursor--;
+			}
 		}
-		if (menu_pages[menu_kursor] == BatteryMenu)
-		{
-			if (batt_menu_kursor == 0)
-				batt_menu_kursor = 1;
-			else if (batt_menu_kursor == 1)
-				batt_menu_kursor = 0;
-		}
+
 	}
 	else if (key == Down)
 	{
-		if (menu_pages[menu_kursor] == TemperatureMenu)
+		if (setTimeMode)
 		{
-			if (temp_menu_kursor == 0)
-				temp_menu_kursor = 1;
-			else if (temp_menu_kursor == 1)
-				temp_menu_kursor = 0;
+			makeBeepSound();
+			if (set_time_cursor < 5)
+				set_time_cursor++;
 		}
-		if (menu_pages[menu_kursor] == PreassureMenu)
+		else
 		{
-			if (press_menu_kursor == 0)
-				press_menu_kursor = 1;
-			else if (press_menu_kursor == 1)
-				press_menu_kursor = 0;
+			if (menu_pages[menu_kursor] == TemperatureMenu)
+			{
+				makeBeepSound();
+				if (temp_menu_kursor == 0)
+					temp_menu_kursor = 1;
+				else if (temp_menu_kursor == 1)
+					temp_menu_kursor = 0;
+			}
+			if (menu_pages[menu_kursor] == PreassureMenu)
+			{
+				makeBeepSound();
+				if (press_menu_kursor == 0)
+					press_menu_kursor = 1;
+				else if (press_menu_kursor == 1)
+					press_menu_kursor = 0;
+			}
+			if (menu_pages[menu_kursor] == BatteryMenu)
+			{
+				makeBeepSound();
+				if (batt_menu_kursor == 0)
+					batt_menu_kursor = 1;
+				else if (batt_menu_kursor == 1)
+					batt_menu_kursor = 0;
+			}
+			if (menu_pages[menu_kursor] == SettingsMenu)
+			{
+				makeBeepSound();
+				if (settings_menu_cursor < 1)
+					settings_menu_cursor++;
+			}
 		}
-		if (menu_pages[menu_kursor] == BatteryMenu)
-		{
-			if (batt_menu_kursor == 0)
-				batt_menu_kursor = 1;
-			else if (batt_menu_kursor == 1)
-				batt_menu_kursor = 0;
-		}
+
 	}
 	else if (key == Middle)
 	{
-		if (!setTimeMode)
+		if (menu_pages[menu_kursor] == SettingsMenu)
 		{
-			setTimeMode = true;
-		}
-		else if (setTimeMode)
-		{
-			setTimeMode = false;
+			if (settings_menu_cursor == 0)
+				soundOn = !soundOn;
+			else if (settings_menu_cursor == 1)
+				setTimeMode = true;
+			if (setTimeMode)
+			{
+				// TODO
+			}
 		}
 	}
 }
