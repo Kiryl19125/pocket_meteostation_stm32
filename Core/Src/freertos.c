@@ -129,6 +129,13 @@ uint8_t set_time_cursor = 0;
 bool soundOn = true;
 bool setTimeMode = false;
 
+bool editYearMode = false;
+bool editMonthMode = false;
+bool editDayMode = false;
+bool editHourMode = false;
+bool editMinuteMode = false;
+bool editSecondMode = false;
+
 Menu_t menu_pages[] =
 { TimeMenu, TemperatureMenu, HumidityMenu, PreassureMenu, AltitudeMenu, BatteryMenu, SettingsMenu };
 
@@ -139,7 +146,7 @@ DateTime_t date_time =
 { 0, 0, 0, 0, 0, 0 };
 
 SetDateTime_t set_date_time =
-{ 0, 0, 0, 0, 0, 0 };
+{ 2000, 1, 1, 1, 0, 0 };
 
 BMEValues_t bme_values =
 { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
@@ -336,12 +343,12 @@ void StartRenderUITask(void *argument)
 		case SettingsMenu:
 			if (setTimeMode)
 			{
-				vTaskSuspend(readDateTimeHandle);
+//				vTaskSuspend(readDateTimeHandle);
 				showSetTimeMenu();
 			}
 			else
 			{
-				vTaskResume(readDateTimeHandle);
+//				vTaskResume(readDateTimeHandle);
 				showSettingsMenu();
 			}
 			break;
@@ -536,16 +543,14 @@ static void showSetTimeMenu()
 //	ssd1306_DrawRectangle(0, 0, 127, 31, White);
 //	ssd1306_SetCursor(4, 2);
 //
-	set_date_time.year = date_time.year;
-	set_date_time.month = date_time.month;
-	set_date_time.day = date_time.day;
-	set_date_time.hour = date_time.hour;
-	set_date_time.minute = date_time.minute;
-	set_date_time.second = date_time.second;
+//	set_date_time.year = date_time.year;
+//	set_date_time.month = date_time.month;
+//	set_date_time.day = date_time.day;
+//	set_date_time.hour = date_time.hour;
+//	set_date_time.minute = date_time.minute;
+//	set_date_time.second = date_time.second;
 
 	ssd1306_Fill(Black); // clear display
-
-
 
 	if (set_time_cursor >= 0 && set_time_cursor < 3)
 	{
@@ -564,8 +569,18 @@ static void showSetTimeMenu()
 
 		ssd1306_SetCursor(0, (set_time_cursor * 10) + 1);
 		ssd1306_WriteString(">", Font_7x10, White);
-		ssd1306_SetCursor(120, (set_time_cursor * 10) + 1);
-		ssd1306_WriteString("<", Font_7x10, White);
+
+		if (editYearMode || editMonthMode || editDayMode || editHourMode || editMinuteMode || editSecondMode)
+		{
+			ssd1306_SetCursor(100, (set_time_cursor * 10) + 1);
+			ssd1306_WriteString("<--", Font_7x10, White);
+		}
+		else
+		{
+			ssd1306_SetCursor(120, (set_time_cursor * 10) + 1);
+			ssd1306_WriteString("<", Font_7x10, White);
+		}
+
 	}
 	else if (set_time_cursor >= 3 && set_time_cursor < 6)
 	{
@@ -584,8 +599,18 @@ static void showSetTimeMenu()
 
 		ssd1306_SetCursor(0, ((set_time_cursor - 3) * 10) + 1);
 		ssd1306_WriteString(">", Font_7x10, White);
-		ssd1306_SetCursor(120, ((set_time_cursor - 3) * 10) + 1);
-		ssd1306_WriteString("<", Font_7x10, White);
+
+		if (editYearMode || editMonthMode || editDayMode || editHourMode || editMinuteMode || editSecondMode)
+		{
+			ssd1306_SetCursor(100, ((set_time_cursor - 3) * 10) + 1);
+			ssd1306_WriteString("<--", Font_7x10, White);
+		}
+		else
+		{
+			ssd1306_SetCursor(120, ((set_time_cursor - 3) * 10) + 1);
+			ssd1306_WriteString("<", Font_7x10, White);
+		}
+
 	}
 
 	ssd1306_UpdateScreen();
@@ -696,6 +721,7 @@ static void processKey(Key key)
 		{
 			makeBeepSound();
 			setTimeMode = false;
+			// TODO set time to the ds32331!!!
 		}
 		else
 		{
@@ -727,8 +753,24 @@ static void processKey(Key key)
 		if (setTimeMode)
 		{
 			makeBeepSound();
-			if (set_time_cursor > 0)
-				set_time_cursor--;
+			if (editYearMode)
+				set_date_time.year++;
+			else if (editMonthMode)
+				set_date_time.month++;
+			else if (editDayMode)
+				set_date_time.day++;
+			else if (editHourMode)
+				set_date_time.hour++;
+			else if (editMinuteMode)
+				set_date_time.minute++;
+			else if (editSecondMode)
+				set_date_time.second++;
+			else
+			{
+				if (set_time_cursor > 0)
+					set_time_cursor--;
+			}
+
 		}
 		else
 		{
@@ -770,8 +812,23 @@ static void processKey(Key key)
 		if (setTimeMode)
 		{
 			makeBeepSound();
-			if (set_time_cursor < 5)
-				set_time_cursor++;
+			if (editYearMode)
+				set_date_time.year--;
+			else if (editMonthMode)
+				set_date_time.month--;
+			else if (editDayMode)
+				set_date_time.day--;
+			else if (editHourMode)
+				set_date_time.hour--;
+			else if (editMinuteMode)
+				set_date_time.minute--;
+			else if (editSecondMode)
+				set_date_time.second--;
+			else
+			{
+				if (set_time_cursor < 5)
+					set_time_cursor++;
+			}
 		}
 		else
 		{
@@ -812,13 +869,38 @@ static void processKey(Key key)
 	{
 		if (menu_pages[menu_kursor] == SettingsMenu)
 		{
-			if (settings_menu_cursor == 0)
-				soundOn = !soundOn;
-			else if (settings_menu_cursor == 1)
-				setTimeMode = true;
+			makeBeepSound();
 			if (setTimeMode)
 			{
 				// TODO
+				switch (set_time_cursor)
+				{
+				case 0:
+					editYearMode = !editYearMode;
+					break;
+				case 1:
+					editMonthMode = !editMonthMode;
+					break;
+				case 2:
+					editDayMode = !editDayMode;
+					break;
+				case 3:
+					editHourMode = !editHourMode;
+					break;
+				case 4:
+					editMinuteMode = !editMinuteMode;
+					break;
+				case 5:
+					editSecondMode = !editSecondMode;
+					break;
+				}
+			}
+			else
+			{
+				if (settings_menu_cursor == 0)
+					soundOn = !soundOn;
+				else if (settings_menu_cursor == 1)
+					setTimeMode = true;
 			}
 		}
 	}
