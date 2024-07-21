@@ -146,7 +146,7 @@ DateTime_t date_time =
 { 0, 0, 0, 0, 0, 0 };
 
 SetDateTime_t set_date_time =
-{ 2000, 1, 1, 1, 0, 0 };
+{ 2000, 1, 1, 0, 0, 0 };
 
 BMEValues_t bme_values =
 { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
@@ -754,17 +754,35 @@ static void processKey(Key key)
 		{
 			makeBeepSound();
 			if (editYearMode)
-				set_date_time.year++;
+			{
+				if (set_date_time.year >= 2000 && set_date_time.year < 2199)
+					set_date_time.year++;
+			}
 			else if (editMonthMode)
-				set_date_time.month++;
+			{
+				if (set_date_time.month >= 1 && set_date_time.month < 12)
+					set_date_time.month++;
+			}
 			else if (editDayMode)
-				set_date_time.day++;
+			{
+				if (set_date_time.day >= 1 && set_date_time.day < 31)
+					set_date_time.day++;
+			}
 			else if (editHourMode)
-				set_date_time.hour++;
+			{
+				if (set_date_time.hour >= 0 && set_date_time.hour < 23)
+					set_date_time.hour++;
+			}
 			else if (editMinuteMode)
-				set_date_time.minute++;
+			{
+				if (set_date_time.minute >= 0 && set_date_time.minute < 59)
+					set_date_time.minute++;
+			}
 			else if (editSecondMode)
-				set_date_time.second++;
+			{
+				if (set_date_time.second >= 0 && set_date_time.second < 59)
+					set_date_time.second++;
+			}
 			else
 			{
 				if (set_time_cursor > 0)
@@ -813,17 +831,35 @@ static void processKey(Key key)
 		{
 			makeBeepSound();
 			if (editYearMode)
-				set_date_time.year--;
+			{
+				if (set_date_time.year > 2000 && set_date_time.year <= 2199)
+					set_date_time.year--;
+			}
 			else if (editMonthMode)
-				set_date_time.month--;
+			{
+				if (set_date_time.month > 1 && set_date_time.month <= 12)
+					set_date_time.month--;
+			}
 			else if (editDayMode)
-				set_date_time.day--;
+			{
+				if (set_date_time.day > 1 && set_date_time.day <= 31)
+					set_date_time.day--;
+			}
 			else if (editHourMode)
-				set_date_time.hour--;
+			{
+				if (set_date_time.hour > 0 && set_date_time.hour <= 23)
+					set_date_time.hour--;
+			}
 			else if (editMinuteMode)
-				set_date_time.minute--;
+			{
+				if (set_date_time.minute > 0 && set_date_time.minute <= 59)
+					set_date_time.minute--;
+			}
 			else if (editSecondMode)
-				set_date_time.second--;
+			{
+				if (set_date_time.second > 0 && set_date_time.second <= 59)
+					set_date_time.second--;
+			}
 			else
 			{
 				if (set_time_cursor < 5)

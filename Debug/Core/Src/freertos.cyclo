@@ -17,4 +17,4 @@
 ../Core/Src/freertos.c:670:13:showPressureMenuMMHG	1
 ../Core/Src/freertos.c:684:13:showSettingsMenu	3
 ../Core/Src/freertos.c:705:13:makeBeepSound	2
-../Core/Src/freertos.c:716:13:processKey	60
+../Core/Src/freertos.c:716:13:processKey	81
