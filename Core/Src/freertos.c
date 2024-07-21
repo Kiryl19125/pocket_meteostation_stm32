@@ -136,6 +136,8 @@ bool editHourMode = false;
 bool editMinuteMode = false;
 bool editSecondMode = false;
 
+bool timeFlag = false;
+
 Menu_t menu_pages[] =
 { TimeMenu, TemperatureMenu, HumidityMenu, PreassureMenu, AltitudeMenu, BatteryMenu, SettingsMenu };
 
@@ -345,12 +347,12 @@ void StartRenderUITask(void *argument)
 		case SettingsMenu:
 			if (setTimeMode)
 			{
-//				vTaskSuspend(readDateTimeHandle);
+				vTaskSuspend(readDateTimeHandle);
 				showSetTimeMenu();
 			}
 			else
 			{
-//				vTaskResume(readDateTimeHandle);
+				vTaskResume(readDateTimeHandle);
 				showSettingsMenu();
 			}
 			break;
@@ -541,32 +543,32 @@ static void showTimeMenu()
 
 static void showSetTimeMenu()
 {
-
-//	ssd1306_DrawRectangle(0, 0, 127, 31, White);
-//	ssd1306_SetCursor(4, 2);
-//
-//	set_date_time.year = date_time.year;
-//	set_date_time.month = date_time.month;
-//	set_date_time.day = date_time.day;
-//	set_date_time.hour = date_time.hour;
-//	set_date_time.minute = date_time.minute;
-//	set_date_time.second = date_time.second;
-
 	ssd1306_Fill(Black); // clear display
+
+	if (!timeFlag)
+	{
+		set_date_time.year = date_time.year;
+		set_date_time.month = date_time.month;
+		set_date_time.day = date_time.day;
+		set_date_time.hour = date_time.hour;
+		set_date_time.minute = date_time.minute;
+		set_date_time.second = date_time.second;
+	}
+	timeFlag = true;
 
 	if (set_time_cursor >= 0 && set_time_cursor < 3)
 	{
 		// first page
 		ssd1306_SetCursor(10, 0);
-		sprintf(msg_buffer, "Year: %d", set_date_time.year);
+		sprintf(msg_buffer, "Year:   %d", set_date_time.year);
 		ssd1306_WriteString(msg_buffer, Font_7x10, White);
 
 		ssd1306_SetCursor(10, 11);
-		sprintf(msg_buffer, "Month: %d", set_date_time.month);
+		sprintf(msg_buffer, "Month:  %d", set_date_time.month);
 		ssd1306_WriteString(msg_buffer, Font_7x10, White);
 
 		ssd1306_SetCursor(10, 22);
-		sprintf(msg_buffer, "Day: %d", set_date_time.day);
+		sprintf(msg_buffer, "Day:    %d", set_date_time.day);
 		ssd1306_WriteString(msg_buffer, Font_7x10, White);
 
 		ssd1306_SetCursor(0, (set_time_cursor * 10) + 1);
@@ -588,7 +590,7 @@ static void showSetTimeMenu()
 	{
 		// second page
 		ssd1306_SetCursor(10, 0);
-		sprintf(msg_buffer, "Hour: %d", set_date_time.hour);
+		sprintf(msg_buffer, "Hour:   %d", set_date_time.hour);
 		ssd1306_WriteString(msg_buffer, Font_7x10, White);
 
 		ssd1306_SetCursor(10, 11);
@@ -616,14 +618,6 @@ static void showSetTimeMenu()
 	}
 
 	ssd1306_UpdateScreen();
-//
-//	sprintf(msg_buffer, "%d/%d/%d", set_date_time.day, set_date_time.month, set_date_time.year);
-//	ssd1306_WriteString(msg_buffer, Font_7x10, White);
-//
-//	ssd1306_SetCursor(4, 11);
-//	sprintf(msg_buffer, "%d:%d:%d", set_date_time.hour, set_date_time.minute, set_date_time.second);
-//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
-//	ssd1306_UpdateScreen();
 }
 
 static void showHumidityMenu()
@@ -687,18 +681,18 @@ static void showSettingsMenu()
 {
 	ssd1306_Fill(Black);
 
-	ssd1306_SetCursor(10, 0);
+	ssd1306_SetCursor(10, 4);
 	if (soundOn)
 		ssd1306_WriteString("Sound: ON", Font_7x10, White);
 	else if (!soundOn)
 		ssd1306_WriteString("Sound: OFF", Font_7x10, White);
 
-	ssd1306_SetCursor(10, 12);
+	ssd1306_SetCursor(10, 16);
 	ssd1306_WriteString("Set time", Font_7x10, White);
 
-	ssd1306_SetCursor(0, (settings_menu_cursor * 10) + 2);
+	ssd1306_SetCursor(0, (settings_menu_cursor * 10) + 6);
 	ssd1306_WriteString(">", Font_7x10, White);
-	ssd1306_SetCursor(120, (settings_menu_cursor * 10) + 2);
+	ssd1306_SetCursor(120, (settings_menu_cursor * 10) + 6);
 	ssd1306_WriteString("<", Font_7x10, White);
 
 	ssd1306_UpdateScreen();
@@ -712,6 +706,8 @@ static void makeBeepSound()
 		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
 		osDelay(100);
 		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+	} else {
+		osDelay(100);
 	}
 }
 
@@ -732,8 +728,9 @@ static void processKey(Key key)
 		if (setTimeMode)
 		{
 			makeBeepSound();
-			setTimeMode = false;
 			setNewTime();
+			timeFlag = false;
+			setTimeMode = false;
 		}
 		else
 		{
@@ -920,7 +917,6 @@ static void processKey(Key key)
 			makeBeepSound();
 			if (setTimeMode)
 			{
-				// TODO
 				switch (set_time_cursor)
 				{
 				case 0:
