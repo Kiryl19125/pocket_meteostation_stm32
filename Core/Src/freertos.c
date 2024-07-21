@@ -201,6 +201,8 @@ static void processKey(Key key);
 
 static void makeBeepSound();
 
+static void setNewTime();
+
 /* USER CODE END FunctionPrototypes */
 
 void StartReadBattVoltageTask(void *argument);
@@ -713,6 +715,16 @@ static void makeBeepSound()
 	}
 }
 
+static void setNewTime()
+{
+	DS3231_SetYear(set_date_time.year);
+	DS3231_SetMonth(set_date_time.month);
+	DS3231_SetDate(set_date_time.day);
+	DS3231_SetHour(set_date_time.hour);
+	DS3231_SetMinute(set_date_time.minute);
+	DS3231_SetSecond(set_date_time.second);
+}
+
 static void processKey(Key key)
 {
 	if (key == Left)
@@ -721,7 +733,7 @@ static void processKey(Key key)
 		{
 			makeBeepSound();
 			setTimeMode = false;
-			// TODO set time to the ds32331!!!
+			setNewTime();
 		}
 		else
 		{
