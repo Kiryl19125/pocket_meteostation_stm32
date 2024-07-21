@@ -70,6 +70,16 @@ typedef struct
 
 typedef struct
 {
+	uint16_t year;
+	uint8_t month;
+	uint8_t day;
+	uint8_t hour;
+	uint8_t minute;
+	uint8_t second;
+} SetDateTime_t;
+
+typedef struct
+{
 	uint16_t raw_adc_value;
 	uint8_t voltage_integer_part;
 	uint8_t voltage_float_part;
@@ -120,9 +130,12 @@ Menu_t menu_pages[] =
 { TimeMenu, TemperatureMenu, HumidityMenu, PreassureMenu, AltitudeMenu, BatteryMenu };
 
 BatteryVoltage_t battery =
-{ 0, 0, 0.0f, 0.0f};
+{ 0, 0, 0.0f, 0.0f };
 
 DateTime_t date_time =
+{ 0, 0, 0, 0, 0, 0 };
+
+SetDateTime_t set_date_time =
 { 0, 0, 0, 0, 0, 0 };
 
 BMEValues_t bme_values =
@@ -164,6 +177,8 @@ static void showTemperatureMenu();
 static void showTemperatureMenuF();
 
 static void showTimeMenu();
+static void showSetTimeMenu();
+
 static void showHumidityMenu();
 static void showAltitudeMenu();
 
@@ -171,6 +186,8 @@ static void showPressureMenuHPA();
 static void showPressureMenuMMHG();
 
 static void processKey(Key key);
+
+static void makeBeepSound();
 
 /* USER CODE END FunctionPrototypes */
 
@@ -297,7 +314,18 @@ void StartRenderUITask(void *argument)
 				showTemperatureMenuF();
 			break;
 		case TimeMenu:
-			showTimeMenu();
+			if (setTimeMode)
+			{
+				vTaskSuspend(readDateTimeHandle);
+				showSetTimeMenu();
+			}
+
+			else if (!setTimeMode)
+			{
+				vTaskResume(readDateTimeHandle);
+				showTimeMenu();
+			}
+
 			break;
 		case HumidityMenu:
 			showHumidityMenu();
@@ -340,12 +368,6 @@ void StartPollKeypadTask(void *argument)
 		{
 			previos_key = key_pressed;
 
-			// make beep sound
-			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
-			osDelay(100);
-			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
-
-			// change if needed menu cursor
 			processKey(key_pressed);
 		}
 		osDelay(100);
@@ -481,7 +503,7 @@ static void showTemperatureMenuF()
 	ssd1306_WriteString("Temperature", Font_7x10, White);
 
 	ssd1306_SetCursor(0, 14);
-	Float_transform(bme_values.temperature * (9.0f/5.0f) + 32, 1, &sign_number, &integer_number, &fractional_number);
+	Float_transform(bme_values.temperature * (9.0f / 5.0f) + 32, 1, &sign_number, &integer_number, &fractional_number);
 	sprintf(msg_buffer, "%d.%.01ld *F", integer_number, fractional_number);
 	ssd1306_WriteString(msg_buffer, Font_11x18, White);
 	ssd1306_UpdateScreen();
@@ -499,6 +521,29 @@ static void showTimeMenu()
 	sprintf(msg_buffer, "%d:%d:%d", date_time.hour, date_time.minute, date_time.second);
 	ssd1306_WriteString(msg_buffer, Font_11x18, White);
 
+	ssd1306_UpdateScreen();
+}
+
+static void showSetTimeMenu()
+{
+	ssd1306_Fill(Black); // clear display
+
+	ssd1306_DrawRectangle(0, 0, 127, 31, White);
+	ssd1306_SetCursor(4, 2);
+
+	set_date_time.year = date_time.year;
+	set_date_time.month = date_time.month;
+	set_date_time.day = date_time.day;
+	set_date_time.hour = date_time.hour;
+	set_date_time.minute = date_time.minute;
+	set_date_time.second = date_time.second;
+
+	sprintf(msg_buffer, "%d/%d/%d", set_date_time.day, set_date_time.month, set_date_time.year);
+	ssd1306_WriteString(msg_buffer, Font_7x10, White);
+
+	ssd1306_SetCursor(4, 11);
+	sprintf(msg_buffer, "%d:%d:%d", set_date_time.hour, set_date_time.minute, set_date_time.second);
+	ssd1306_WriteString(msg_buffer, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
 
@@ -543,7 +588,6 @@ static void showPressureMenuHPA()
 	ssd1306_WriteString(msg_buffer, Font_11x18, White);
 	ssd1306_UpdateScreen();
 
-
 }
 
 static void showPressureMenuMMHG()
@@ -558,6 +602,14 @@ static void showPressureMenuMMHG()
 	sprintf(msg_buffer, "%d.%.01ld mmHg", integer_number, fractional_number);
 	ssd1306_WriteString(msg_buffer, Font_11x18, White);
 	ssd1306_UpdateScreen();
+}
+
+static void makeBeepSound()
+{
+	// make beep sound
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
+	osDelay(100);
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
 }
 
 static void processKey(Key key)
@@ -576,7 +628,6 @@ static void processKey(Key key)
 	}
 	else if (key == Right)
 	{
-
 		if (menu_kursor < MENU_PAGES_LENGTH - 1)
 		{
 			menu_kursor++;
@@ -586,28 +637,7 @@ static void processKey(Key key)
 			menu_kursor = 0;
 		}
 	}
-	else if(key == Up)
-	{
-		if (menu_pages[menu_kursor] == TemperatureMenu)
-		{
-			if (temp_menu_kursor == 0)
-				temp_menu_kursor = 1;
-			else if (temp_menu_kursor == 1)
-				temp_menu_kursor = 0;
-		}
-		if (menu_pages[menu_kursor] == PreassureMenu){
-			if (press_menu_kursor == 0)
-				press_menu_kursor = 1;
-			else if (press_menu_kursor == 1)
-				press_menu_kursor = 0;
-		}
-		if (menu_pages[menu_kursor] == BatteryMenu){
-			if (batt_menu_kursor == 0)
-				batt_menu_kursor = 1;
-			else if (batt_menu_kursor == 1)
-				batt_menu_kursor = 0;
-		}
-	} else if (key == Down)
+	else if (key == Up)
 	{
 		if (menu_pages[menu_kursor] == TemperatureMenu)
 		{
@@ -623,11 +653,47 @@ static void processKey(Key key)
 			else if (press_menu_kursor == 1)
 				press_menu_kursor = 0;
 		}
-		if (menu_pages[menu_kursor] == BatteryMenu){
+		if (menu_pages[menu_kursor] == BatteryMenu)
+		{
 			if (batt_menu_kursor == 0)
 				batt_menu_kursor = 1;
 			else if (batt_menu_kursor == 1)
 				batt_menu_kursor = 0;
+		}
+	}
+	else if (key == Down)
+	{
+		if (menu_pages[menu_kursor] == TemperatureMenu)
+		{
+			if (temp_menu_kursor == 0)
+				temp_menu_kursor = 1;
+			else if (temp_menu_kursor == 1)
+				temp_menu_kursor = 0;
+		}
+		if (menu_pages[menu_kursor] == PreassureMenu)
+		{
+			if (press_menu_kursor == 0)
+				press_menu_kursor = 1;
+			else if (press_menu_kursor == 1)
+				press_menu_kursor = 0;
+		}
+		if (menu_pages[menu_kursor] == BatteryMenu)
+		{
+			if (batt_menu_kursor == 0)
+				batt_menu_kursor = 1;
+			else if (batt_menu_kursor == 1)
+				batt_menu_kursor = 0;
+		}
+	}
+	else if (key == Middle)
+	{
+		if (!setTimeMode)
+		{
+			setTimeMode = true;
+		}
+		else if (setTimeMode)
+		{
+			setTimeMode = false;
 		}
 	}
 }
