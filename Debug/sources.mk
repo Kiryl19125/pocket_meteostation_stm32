@@ -22,8 +22,12 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-Core/Src \
+Core/Src/BME280 \
 Core/Src/Float_transform \
+Core/Src/Keypad \
+Core/Src \
+Core/Src/ds3231 \
+Core/Src/ssd1306 \
 Core/Startup \
 Drivers/STM32F3xx_HAL_Driver/Src \
 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 \

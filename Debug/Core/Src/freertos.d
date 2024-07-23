@@ -43,10 +43,11 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h \
  ../Core/Inc/adc.h ../Core/Inc/main.h ../Core/Inc/i2c.h ../Core/Inc/tim.h \
- ../Core/Inc/usart.h ../Core/Inc/gpio.h ../Core/Inc/ssd1306.h \
- ../Core/Inc/ssd1306_conf.h ../Core/Inc/ssd1306_tests.h \
- ../Core/Inc/ssd1306_fonts.h ../Core/Inc/ssd1306.h ../Core/Inc/Keypad.h \
- ../Core/Inc/BME280.h ../Core/Inc/ds3231_for_stm32_hal.h \
+ ../Core/Inc/usart.h ../Core/Inc/gpio.h ../Core/Inc/ssd1306/ssd1306.h \
+ ../Core/Inc/ssd1306/ssd1306_conf.h ../Core/Inc/ssd1306/ssd1306_tests.h \
+ ../Core/Inc/ssd1306/ssd1306_fonts.h ../Core/Inc/ssd1306/ssd1306.h \
+ ../Core/Inc/Keypad/Keypad.h ../Core/Inc/BME280/BME280.h \
+ ../Core/Inc/ds3231/ds3231_for_stm32_hal.h \
  ../Core/Inc/Float_transform/Float_transform.h
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
@@ -98,12 +99,12 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
 ../Core/Inc/tim.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/gpio.h:
-../Core/Inc/ssd1306.h:
-../Core/Inc/ssd1306_conf.h:
-../Core/Inc/ssd1306_tests.h:
-../Core/Inc/ssd1306_fonts.h:
-../Core/Inc/ssd1306.h:
-../Core/Inc/Keypad.h:
-../Core/Inc/BME280.h:
-../Core/Inc/ds3231_for_stm32_hal.h:
+../Core/Inc/ssd1306/ssd1306.h:
+../Core/Inc/ssd1306/ssd1306_conf.h:
+../Core/Inc/ssd1306/ssd1306_tests.h:
+../Core/Inc/ssd1306/ssd1306_fonts.h:
+../Core/Inc/ssd1306/ssd1306.h:
+../Core/Inc/Keypad/Keypad.h:
+../Core/Inc/BME280/BME280.h:
+../Core/Inc/ds3231/ds3231_for_stm32_hal.h:
 ../Core/Inc/Float_transform/Float_transform.h:

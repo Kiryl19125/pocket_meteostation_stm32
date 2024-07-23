@@ -27,9 +27,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ssd1306.h"
-#include "BME280.h"
-#include "ds3231_for_stm32_hal.h"
+#include "ssd1306/ssd1306.h"
+#include "BME280/BME280.h"
+#include "ds3231/ds3231_for_stm32_hal.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

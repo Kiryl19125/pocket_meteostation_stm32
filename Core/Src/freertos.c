@@ -34,13 +34,13 @@
 #include "usart.h"
 #include "gpio.h"
 
-#include "ssd1306.h"
-#include "ssd1306_tests.h"
-#include "ssd1306_fonts.h"
+#include "ssd1306/ssd1306.h"
+#include "ssd1306/ssd1306_tests.h"
+#include "ssd1306/ssd1306_fonts.h"
 
-#include "Keypad.h"
-#include "BME280.h"
-#include "ds3231_for_stm32_hal.h"
+#include "Keypad/Keypad.h"
+#include "BME280/BME280.h"
+#include "ds3231/ds3231_for_stm32_hal.h"
 #include "Float_transform/Float_transform.h"
 
 /* USER CODE END Includes */
