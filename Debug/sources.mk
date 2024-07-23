@@ -27,6 +27,7 @@ Core/Src/Float_transform \
 Core/Src/Keypad \
 Core/Src \
 Core/Src/ds3231 \
+Core/Src/pocket_meteostation \
 Core/Src/ssd1306 \
 Core/Startup \
 Drivers/STM32F3xx_HAL_Driver/Src \

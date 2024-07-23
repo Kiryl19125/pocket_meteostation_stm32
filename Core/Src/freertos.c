@@ -24,7 +24,15 @@
 #include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
+
 /* USER CODE BEGIN Includes */
+
+#include "pocket_meteostation/pocket_meteostation.h"
+#include "Float_transform/Float_transform.h"
+#include "Keypad/Keypad.h"
+#include "BME280/BME280.h"
+#include "ds3231/ds3231_for_stm32_hal.h"
+
 #include "stdio.h"
 #include "string.h"
 #include "stdbool.h"
@@ -34,70 +42,80 @@
 #include "usart.h"
 #include "gpio.h"
 
-#include "ssd1306/ssd1306.h"
-#include "ssd1306/ssd1306_tests.h"
-#include "ssd1306/ssd1306_fonts.h"
+//#include "stdio.h"
+//#include "string.h"
+//#include "stdbool.h"
+//#include "adc.h"
+//#include "i2c.h"
+//#include "tim.h"
+//#include "usart.h"
+//#include "gpio.h"
 
-#include "Keypad/Keypad.h"
-#include "BME280/BME280.h"
-#include "ds3231/ds3231_for_stm32_hal.h"
-#include "Float_transform/Float_transform.h"
+//#include "ssd1306/ssd1306.h"
+//#include "ssd1306/ssd1306_tests.h"
+//#include "ssd1306/ssd1306_fonts.h"
+//
+//#include "Keypad/Keypad.h"
+//#include "BME280/BME280.h"
+//#include "ds3231/ds3231_for_stm32_hal.h"
+//#include "Float_transform/Float_transform.h"
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
-typedef struct
-{
-	float temperature;
-	float preassurePA;
-	float preassureHPA;
-	float preassureMMHG;
-	float humidity;
-	float altitude;
-} BMEValues_t;
+//typedef struct
+//{
+//	float temperature;
+//	float preassurePA;
+//	float preassureHPA;
+//	float preassureMMHG;
+//	float humidity;
+//	float altitude;
+//} BMEValues_t;
+//
+//typedef struct
+//{
+//	uint16_t year;
+//	uint8_t month;
+//	uint8_t day;
+//	uint8_t hour;
+//	uint8_t minute;
+//	uint8_t second;
+//} DateTime_t;
+//
+//typedef struct
+//{
+//	uint16_t year;
+//	uint8_t month;
+//	uint8_t day;
+//	uint8_t hour;
+//	uint8_t minute;
+//	uint8_t second;
+//} SetDateTime_t;
+//
+//typedef struct
+//{
+//	uint16_t raw_adc_value;
+//	uint8_t voltage_integer_part;
+//	uint8_t voltage_float_part;
+//	float voltage;
+//	float percentage;
+//} BatteryVoltage_t;
+//
+//typedef enum
+//{
+//	BatteryMenu, TemperatureMenu, TimeMenu, HumidityMenu, PreassureMenu, AltitudeMenu, SettingsMenu
+//} Menu_t;
 
-typedef struct
-{
-	uint16_t year;
-	uint8_t month;
-	uint8_t day;
-	uint8_t hour;
-	uint8_t minute;
-	uint8_t second;
-} DateTime_t;
-
-typedef struct
-{
-	uint16_t year;
-	uint8_t month;
-	uint8_t day;
-	uint8_t hour;
-	uint8_t minute;
-	uint8_t second;
-} SetDateTime_t;
-
-typedef struct
-{
-	uint16_t raw_adc_value;
-	uint8_t voltage_integer_part;
-	uint8_t voltage_float_part;
-	float voltage;
-	float percentage;
-} BatteryVoltage_t;
-
-typedef enum
-{
-	BatteryMenu, TemperatureMenu, TimeMenu, HumidityMenu, PreassureMenu, AltitudeMenu, SettingsMenu
-} Menu_t;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-#define MAX_MSG_STRING_LENGTH 100
-#define MENU_PAGES_LENGTH 7
+//#define MAX_MSG_STRING_LENGTH 100
+//#define MENU_PAGES_LENGTH 7
 
 /* USER CODE END PD */
 
@@ -114,44 +132,62 @@ extern uint8_t sign_number;
 extern int integer_number;
 extern uint32_t fractional_number;
 
-char msg_buffer[MAX_MSG_STRING_LENGTH];
+extern BatteryVoltage_t battery;
+extern BMEValues_t bme_values;
+extern DateTime_t date_time;
 
-Key key_pressed = None;
-Key previos_key = None;
 
-uint8_t menu_kursor = 0;
-uint8_t temp_menu_kursor = 0;
-uint8_t press_menu_kursor = 0;
-uint8_t batt_menu_kursor = 0;
-uint8_t settings_menu_cursor = 0;
-uint8_t set_time_cursor = 0;
+extern Menu_t menu_pages[];
+extern uint8_t menu_kursor;
+extern uint8_t temp_menu_kursor;
+extern uint8_t press_menu_kursor;
+extern uint8_t batt_menu_kursor;
+extern uint8_t settings_menu_cursor;
+extern uint8_t set_time_cursor;
 
-bool soundOn = true;
-bool setTimeMode = false;
+extern bool setTimeMode;
 
-bool editYearMode = false;
-bool editMonthMode = false;
-bool editDayMode = false;
-bool editHourMode = false;
-bool editMinuteMode = false;
-bool editSecondMode = false;
-
-bool timeFlag = false;
-
-Menu_t menu_pages[] =
-{ TimeMenu, TemperatureMenu, HumidityMenu, PreassureMenu, AltitudeMenu, BatteryMenu, SettingsMenu };
-
-BatteryVoltage_t battery =
-{ 0, 0, 0.0f, 0.0f };
-
-DateTime_t date_time =
-{ 0, 0, 0, 0, 0, 0 };
-
-SetDateTime_t set_date_time =
-{ 2000, 1, 1, 0, 0, 0 };
-
-BMEValues_t bme_values =
-{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+extern Key key_pressed;
+extern Key previos_key;
+//
+//char msg_buffer[MAX_MSG_STRING_LENGTH];
+//
+//Key key_pressed = None;
+//Key previos_key = None;
+//
+//uint8_t menu_kursor = 0;
+//uint8_t temp_menu_kursor = 0;
+//uint8_t press_menu_kursor = 0;
+//uint8_t batt_menu_kursor = 0;
+//uint8_t settings_menu_cursor = 0;
+//uint8_t set_time_cursor = 0;
+//
+//bool soundOn = true;
+//bool setTimeMode = false;
+//
+//bool editYearMode = false;
+//bool editMonthMode = false;
+//bool editDayMode = false;
+//bool editHourMode = false;
+//bool editMinuteMode = false;
+//bool editSecondMode = false;
+//
+//bool timeFlag = false;
+//
+//Menu_t menu_pages[] =
+//{ TimeMenu, TemperatureMenu, HumidityMenu, PreassureMenu, AltitudeMenu, BatteryMenu, SettingsMenu };
+//
+//BatteryVoltage_t battery =
+//{ 0, 0, 0.0f, 0.0f };
+//
+//DateTime_t date_time =
+//{ 0, 0, 0, 0, 0, 0 };
+//
+//SetDateTime_t set_date_time =
+//{ 2000, 1, 1, 0, 0, 0 };
+//
+//BMEValues_t bme_values =
+//{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 /* USER CODE END Variables */
 /* Definitions for readBattVoltage */
@@ -182,28 +218,28 @@ const osThreadAttr_t blinkStatusLED_attributes =
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
-static void showBatteryMenuVolts();
-static void showBatteryMenuPercent();
-
-static void showTemperatureMenu();
-static void showTemperatureMenuF();
-
-static void showTimeMenu();
-static void showSetTimeMenu();
-
-static void showHumidityMenu();
-static void showAltitudeMenu();
-
-static void showPressureMenuHPA();
-static void showPressureMenuMMHG();
-
-static void showSettingsMenu();
-
-static void processKey(Key key);
-
-static void makeBeepSound();
-
-static void setNewTime();
+//static void showBatteryMenuVolts();
+//static void showBatteryMenuPercent();
+//
+//static void showTemperatureMenu();
+//static void showTemperatureMenuF();
+//
+//static void showTimeMenu();
+//static void showSetTimeMenu();
+//
+//static void showHumidityMenu();
+//static void showAltitudeMenu();
+//
+//static void showPressureMenuHPA();
+//static void showPressureMenuMMHG();
+//
+//static void showSettingsMenu();
+//
+//static void processKey(Key key);
+//
+//static void makeBeepSound();
+//
+//static void setNewTime();
 
 /* USER CODE END FunctionPrototypes */
 
@@ -471,483 +507,484 @@ void StartBlinkStatusLEDTask(void *argument)
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
 
-static void showBatteryMenuVolts()
-{
-	ssd1306_Fill(Black); // clear display
+//static void showBatteryMenuVolts()
+//{
+//	ssd1306_Fill(Black); // clear display
+//
+//	ssd1306_SetCursor(0, 0);
+//	ssd1306_WriteString("Battery voltage", Font_7x10, White);
+//
+//	ssd1306_SetCursor(0, 14);
+//	sprintf(msg_buffer, "%d.%02d V", battery.voltage_integer_part, battery.voltage_float_part);
+//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+//	ssd1306_UpdateScreen();
+//}
+//
+//static void showBatteryMenuPercent()
+//{
+//	ssd1306_Fill(Black); // clear display
+//
+//	ssd1306_SetCursor(0, 0);
+//	ssd1306_WriteString("Battery percentage", Font_7x10, White);
+//
+//	ssd1306_SetCursor(0, 14);
+//	Float_transform(battery.percentage, 1, &sign_number, &integer_number, &fractional_number);
+//	sprintf(msg_buffer, "%d.%01ld %%", integer_number, fractional_number);
+//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+//	ssd1306_UpdateScreen();
+//}
+//
+//static void showTemperatureMenu()
+//{
+//	ssd1306_Fill(Black); // clear display
+//
+//	ssd1306_SetCursor(0, 0);
+//	ssd1306_WriteString("Temperature", Font_7x10, White);
+//
+//	ssd1306_SetCursor(0, 14);
+//	Float_transform(bme_values.temperature, 1, &sign_number, &integer_number, &fractional_number);
+//	sprintf(msg_buffer, "%d.%.01ld *C", integer_number, fractional_number);
+//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+//	ssd1306_UpdateScreen();
+//}
+//
+//static void showTemperatureMenuF()
+//{
+//	ssd1306_Fill(Black); // clear display
+//
+//	ssd1306_SetCursor(0, 0);
+//	ssd1306_WriteString("Temperature", Font_7x10, White);
+//
+//	ssd1306_SetCursor(0, 14);
+//	Float_transform(bme_values.temperature * (9.0f / 5.0f) + 32, 1, &sign_number, &integer_number, &fractional_number);
+//	sprintf(msg_buffer, "%d.%.01ld *F", integer_number, fractional_number);
+//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+//	ssd1306_UpdateScreen();
+//}
+//
+//static void showTimeMenu()
+//{
+//	ssd1306_Fill(Black); // clear display
+//
+//	ssd1306_SetCursor(0, 0);
+//	sprintf(msg_buffer, "%d/%d/%d", date_time.day, date_time.month, date_time.year);
+//	ssd1306_WriteString(msg_buffer, Font_7x10, White);
+//
+//	ssd1306_SetCursor(0, 12);
+//	sprintf(msg_buffer, "%d:%d:%d", date_time.hour, date_time.minute, date_time.second);
+//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+//
+//	ssd1306_UpdateScreen();
+//}
+//
+//static void showSetTimeMenu()
+//{
+//	ssd1306_Fill(Black); // clear display
+//
+//	if (!timeFlag)
+//	{
+//		set_date_time.year = date_time.year;
+//		set_date_time.month = date_time.month;
+//		set_date_time.day = date_time.day;
+//		set_date_time.hour = date_time.hour;
+//		set_date_time.minute = date_time.minute;
+//		set_date_time.second = date_time.second;
+//	}
+//	timeFlag = true;
+//
+//	if (set_time_cursor >= 0 && set_time_cursor < 3)
+//	{
+//		// first page
+//		ssd1306_SetCursor(10, 0);
+//		sprintf(msg_buffer, "Year:   %d", set_date_time.year);
+//		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+//
+//		ssd1306_SetCursor(10, 11);
+//		sprintf(msg_buffer, "Month:  %d", set_date_time.month);
+//		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+//
+//		ssd1306_SetCursor(10, 22);
+//		sprintf(msg_buffer, "Day:    %d", set_date_time.day);
+//		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+//
+//		ssd1306_SetCursor(0, (set_time_cursor * 10) + 1);
+//		ssd1306_WriteString(">", Font_7x10, White);
+//
+//		if (editYearMode || editMonthMode || editDayMode || editHourMode || editMinuteMode || editSecondMode)
+//		{
+//			ssd1306_SetCursor(100, (set_time_cursor * 10) + 1);
+//			ssd1306_WriteString("<--", Font_7x10, White);
+//		}
+//		else
+//		{
+//			ssd1306_SetCursor(120, (set_time_cursor * 10) + 1);
+//			ssd1306_WriteString("<", Font_7x10, White);
+//		}
+//
+//	}
+//	else if (set_time_cursor >= 3 && set_time_cursor < 6)
+//	{
+//		// second page
+//		ssd1306_SetCursor(10, 0);
+//		sprintf(msg_buffer, "Hour:   %d", set_date_time.hour);
+//		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+//
+//		ssd1306_SetCursor(10, 11);
+//		sprintf(msg_buffer, "Minute: %d", set_date_time.minute);
+//		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+//
+//		ssd1306_SetCursor(10, 22);
+//		sprintf(msg_buffer, "Second: %d", set_date_time.second);
+//		ssd1306_WriteString(msg_buffer, Font_7x10, White);
+//
+//		ssd1306_SetCursor(0, ((set_time_cursor - 3) * 10) + 1);
+//		ssd1306_WriteString(">", Font_7x10, White);
+//
+//		if (editYearMode || editMonthMode || editDayMode || editHourMode || editMinuteMode || editSecondMode)
+//		{
+//			ssd1306_SetCursor(100, ((set_time_cursor - 3) * 10) + 1);
+//			ssd1306_WriteString("<--", Font_7x10, White);
+//		}
+//		else
+//		{
+//			ssd1306_SetCursor(120, ((set_time_cursor - 3) * 10) + 1);
+//			ssd1306_WriteString("<", Font_7x10, White);
+//		}
+//
+//	}
+//
+//	ssd1306_UpdateScreen();
+//}
+//
+//static void showHumidityMenu()
+//{
+//	ssd1306_Fill(Black); // clear display
+//
+//	ssd1306_SetCursor(0, 0);
+//	ssd1306_WriteString("Humidity", Font_7x10, White);
+//
+//	ssd1306_SetCursor(0, 14);
+//	Float_transform(bme_values.humidity, 1, &sign_number, &integer_number, &fractional_number);
+//	sprintf(msg_buffer, "%d.%.01ld %%", integer_number, fractional_number);
+//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+//	ssd1306_UpdateScreen();
+//}
+//
+//static void showAltitudeMenu()
+//{
+//	ssd1306_Fill(Black); // clear display
+//
+//	ssd1306_SetCursor(0, 0);
+//	ssd1306_WriteString("Altitude", Font_7x10, White);
+//
+//	ssd1306_SetCursor(0, 14);
+//	Float_transform(bme_values.altitude, 1, &sign_number, &integer_number, &fractional_number);
+//	sprintf(msg_buffer, "%d.%.01ld m", integer_number, fractional_number);
+//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+//	ssd1306_UpdateScreen();
+//}
+//
+//static void showPressureMenuHPA()
+//{
+//	ssd1306_Fill(Black); // clear display
+//
+//	ssd1306_SetCursor(0, 0);
+//	ssd1306_WriteString("Pressure", Font_7x10, White);
+//
+//	ssd1306_SetCursor(0, 14);
+//	Float_transform(bme_values.preassureHPA, 1, &sign_number, &integer_number, &fractional_number);
+//	sprintf(msg_buffer, "%d.%.01ld hPA", integer_number, fractional_number);
+//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+//	ssd1306_UpdateScreen();
+//
+//}
+//
+//static void showPressureMenuMMHG()
+//{
+//	ssd1306_Fill(Black); // clear display
+//
+//	ssd1306_SetCursor(0, 0);
+//	ssd1306_WriteString("Pressure", Font_7x10, White);
+//
+//	ssd1306_SetCursor(0, 14);
+//	Float_transform(bme_values.preassureMMHG, 1, &sign_number, &integer_number, &fractional_number);
+//	sprintf(msg_buffer, "%d.%.01ld mmHg", integer_number, fractional_number);
+//	ssd1306_WriteString(msg_buffer, Font_11x18, White);
+//	ssd1306_UpdateScreen();
+//}
+//
+//static void showSettingsMenu()
+//{
+//	ssd1306_Fill(Black);
+//
+//	ssd1306_SetCursor(10, 4);
+//	if (soundOn)
+//		ssd1306_WriteString("Sound: ON", Font_7x10, White);
+//	else if (!soundOn)
+//		ssd1306_WriteString("Sound: OFF", Font_7x10, White);
+//
+//	ssd1306_SetCursor(10, 16);
+//	ssd1306_WriteString("Set time", Font_7x10, White);
+//
+//	ssd1306_SetCursor(0, (settings_menu_cursor * 10) + 6);
+//	ssd1306_WriteString(">", Font_7x10, White);
+//	ssd1306_SetCursor(120, (settings_menu_cursor * 10) + 6);
+//	ssd1306_WriteString("<", Font_7x10, White);
+//
+//	ssd1306_UpdateScreen();
+//}
+//
+//static void makeBeepSound()
+//{
+//	if (soundOn)
+//	{
+//		// make beep sound
+//		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
+//		osDelay(100);
+//		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+//	} else {
+//		osDelay(100);
+//	}
+//}
+//
+//static void setNewTime()
+//{
+//	DS3231_SetYear(set_date_time.year);
+//	DS3231_SetMonth(set_date_time.month);
+//	DS3231_SetDate(set_date_time.day);
+//	DS3231_SetHour(set_date_time.hour);
+//	DS3231_SetMinute(set_date_time.minute);
+//	DS3231_SetSecond(set_date_time.second);
+//}
+//
+//static void processKey(Key key)
+//{
+//	if (key == Left)
+//	{
+//		if (setTimeMode)
+//		{
+//			makeBeepSound();
+//			setNewTime();
+//			timeFlag = false;
+//			setTimeMode = false;
+//		}
+//		else
+//		{
+//			makeBeepSound();
+//			if (menu_kursor > 0)
+//			{
+//				menu_kursor--;
+//			}
+//			else if (menu_kursor == 0)
+//			{
+//				menu_kursor = MENU_PAGES_LENGTH - 1; // last element if manu_pages
+//			}
+//		}
+//	}
+//	else if (key == Right && !setTimeMode)
+//	{
+//		makeBeepSound();
+//		if (menu_kursor < MENU_PAGES_LENGTH - 1)
+//		{
+//			menu_kursor++;
+//		}
+//		else if (menu_kursor == MENU_PAGES_LENGTH - 1)
+//		{
+//			menu_kursor = 0;
+//		}
+//	}
+//	else if (key == Up)
+//	{
+//		if (setTimeMode)
+//		{
+//			makeBeepSound();
+//			if (editYearMode)
+//			{
+//				if (set_date_time.year >= 2000 && set_date_time.year < 2199)
+//					set_date_time.year++;
+//			}
+//			else if (editMonthMode)
+//			{
+//				if (set_date_time.month >= 1 && set_date_time.month < 12)
+//					set_date_time.month++;
+//			}
+//			else if (editDayMode)
+//			{
+//				if (set_date_time.day >= 1 && set_date_time.day < 31)
+//					set_date_time.day++;
+//			}
+//			else if (editHourMode)
+//			{
+//				if (set_date_time.hour >= 0 && set_date_time.hour < 23)
+//					set_date_time.hour++;
+//			}
+//			else if (editMinuteMode)
+//			{
+//				if (set_date_time.minute >= 0 && set_date_time.minute < 59)
+//					set_date_time.minute++;
+//			}
+//			else if (editSecondMode)
+//			{
+//				if (set_date_time.second >= 0 && set_date_time.second < 59)
+//					set_date_time.second++;
+//			}
+//			else
+//			{
+//				if (set_time_cursor > 0)
+//					set_time_cursor--;
+//			}
+//
+//		}
+//		else
+//		{
+//			if (menu_pages[menu_kursor] == TemperatureMenu)
+//			{
+//				makeBeepSound();
+//				if (temp_menu_kursor == 0)
+//					temp_menu_kursor = 1;
+//				else if (temp_menu_kursor == 1)
+//					temp_menu_kursor = 0;
+//			}
+//			if (menu_pages[menu_kursor] == PreassureMenu)
+//			{
+//				makeBeepSound();
+//				if (press_menu_kursor == 0)
+//					press_menu_kursor = 1;
+//				else if (press_menu_kursor == 1)
+//					press_menu_kursor = 0;
+//			}
+//			if (menu_pages[menu_kursor] == BatteryMenu)
+//			{
+//				makeBeepSound();
+//				if (batt_menu_kursor == 0)
+//					batt_menu_kursor = 1;
+//				else if (batt_menu_kursor == 1)
+//					batt_menu_kursor = 0;
+//			}
+//			if (menu_pages[menu_kursor] == SettingsMenu)
+//			{
+//				makeBeepSound();
+//				if (settings_menu_cursor > 0)
+//					settings_menu_cursor--;
+//			}
+//		}
+//
+//	}
+//	else if (key == Down)
+//	{
+//		if (setTimeMode)
+//		{
+//			makeBeepSound();
+//			if (editYearMode)
+//			{
+//				if (set_date_time.year > 2000 && set_date_time.year <= 2199)
+//					set_date_time.year--;
+//			}
+//			else if (editMonthMode)
+//			{
+//				if (set_date_time.month > 1 && set_date_time.month <= 12)
+//					set_date_time.month--;
+//			}
+//			else if (editDayMode)
+//			{
+//				if (set_date_time.day > 1 && set_date_time.day <= 31)
+//					set_date_time.day--;
+//			}
+//			else if (editHourMode)
+//			{
+//				if (set_date_time.hour > 0 && set_date_time.hour <= 23)
+//					set_date_time.hour--;
+//			}
+//			else if (editMinuteMode)
+//			{
+//				if (set_date_time.minute > 0 && set_date_time.minute <= 59)
+//					set_date_time.minute--;
+//			}
+//			else if (editSecondMode)
+//			{
+//				if (set_date_time.second > 0 && set_date_time.second <= 59)
+//					set_date_time.second--;
+//			}
+//			else
+//			{
+//				if (set_time_cursor < 5)
+//					set_time_cursor++;
+//			}
+//		}
+//		else
+//		{
+//			if (menu_pages[menu_kursor] == TemperatureMenu)
+//			{
+//				makeBeepSound();
+//				if (temp_menu_kursor == 0)
+//					temp_menu_kursor = 1;
+//				else if (temp_menu_kursor == 1)
+//					temp_menu_kursor = 0;
+//			}
+//			if (menu_pages[menu_kursor] == PreassureMenu)
+//			{
+//				makeBeepSound();
+//				if (press_menu_kursor == 0)
+//					press_menu_kursor = 1;
+//				else if (press_menu_kursor == 1)
+//					press_menu_kursor = 0;
+//			}
+//			if (menu_pages[menu_kursor] == BatteryMenu)
+//			{
+//				makeBeepSound();
+//				if (batt_menu_kursor == 0)
+//					batt_menu_kursor = 1;
+//				else if (batt_menu_kursor == 1)
+//					batt_menu_kursor = 0;
+//			}
+//			if (menu_pages[menu_kursor] == SettingsMenu)
+//			{
+//				makeBeepSound();
+//				if (settings_menu_cursor < 1)
+//					settings_menu_cursor++;
+//			}
+//		}
+//
+//	}
+//	else if (key == Middle)
+//	{
+//		if (menu_pages[menu_kursor] == SettingsMenu)
+//		{
+//			makeBeepSound();
+//			if (setTimeMode)
+//			{
+//				switch (set_time_cursor)
+//				{
+//				case 0:
+//					editYearMode = !editYearMode;
+//					break;
+//				case 1:
+//					editMonthMode = !editMonthMode;
+//					break;
+//				case 2:
+//					editDayMode = !editDayMode;
+//					break;
+//				case 3:
+//					editHourMode = !editHourMode;
+//					break;
+//				case 4:
+//					editMinuteMode = !editMinuteMode;
+//					break;
+//				case 5:
+//					editSecondMode = !editSecondMode;
+//					break;
+//				}
+//			}
+//			else
+//			{
+//				if (settings_menu_cursor == 0)
+//					soundOn = !soundOn;
+//				else if (settings_menu_cursor == 1)
+//					setTimeMode = true;
+//			}
+//		}
+//	}
+//}
 
-	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteString("Battery voltage", Font_7x10, White);
-
-	ssd1306_SetCursor(0, 14);
-	sprintf(msg_buffer, "%d.%02d V", battery.voltage_integer_part, battery.voltage_float_part);
-	ssd1306_WriteString(msg_buffer, Font_11x18, White);
-	ssd1306_UpdateScreen();
-}
-
-static void showBatteryMenuPercent()
-{
-	ssd1306_Fill(Black); // clear display
-
-	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteString("Battery percentage", Font_7x10, White);
-
-	ssd1306_SetCursor(0, 14);
-	Float_transform(battery.percentage, 1, &sign_number, &integer_number, &fractional_number);
-	sprintf(msg_buffer, "%d.%01ld %%", integer_number, fractional_number);
-	ssd1306_WriteString(msg_buffer, Font_11x18, White);
-	ssd1306_UpdateScreen();
-}
-
-static void showTemperatureMenu()
-{
-	ssd1306_Fill(Black); // clear display
-
-	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteString("Temperature", Font_7x10, White);
-
-	ssd1306_SetCursor(0, 14);
-	Float_transform(bme_values.temperature, 1, &sign_number, &integer_number, &fractional_number);
-	sprintf(msg_buffer, "%d.%.01ld *C", integer_number, fractional_number);
-	ssd1306_WriteString(msg_buffer, Font_11x18, White);
-	ssd1306_UpdateScreen();
-}
-
-static void showTemperatureMenuF()
-{
-	ssd1306_Fill(Black); // clear display
-
-	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteString("Temperature", Font_7x10, White);
-
-	ssd1306_SetCursor(0, 14);
-	Float_transform(bme_values.temperature * (9.0f / 5.0f) + 32, 1, &sign_number, &integer_number, &fractional_number);
-	sprintf(msg_buffer, "%d.%.01ld *F", integer_number, fractional_number);
-	ssd1306_WriteString(msg_buffer, Font_11x18, White);
-	ssd1306_UpdateScreen();
-}
-
-static void showTimeMenu()
-{
-	ssd1306_Fill(Black); // clear display
-
-	ssd1306_SetCursor(0, 0);
-	sprintf(msg_buffer, "%d/%d/%d", date_time.day, date_time.month, date_time.year);
-	ssd1306_WriteString(msg_buffer, Font_7x10, White);
-
-	ssd1306_SetCursor(0, 12);
-	sprintf(msg_buffer, "%d:%d:%d", date_time.hour, date_time.minute, date_time.second);
-	ssd1306_WriteString(msg_buffer, Font_11x18, White);
-
-	ssd1306_UpdateScreen();
-}
-
-static void showSetTimeMenu()
-{
-	ssd1306_Fill(Black); // clear display
-
-	if (!timeFlag)
-	{
-		set_date_time.year = date_time.year;
-		set_date_time.month = date_time.month;
-		set_date_time.day = date_time.day;
-		set_date_time.hour = date_time.hour;
-		set_date_time.minute = date_time.minute;
-		set_date_time.second = date_time.second;
-	}
-	timeFlag = true;
-
-	if (set_time_cursor >= 0 && set_time_cursor < 3)
-	{
-		// first page
-		ssd1306_SetCursor(10, 0);
-		sprintf(msg_buffer, "Year:   %d", set_date_time.year);
-		ssd1306_WriteString(msg_buffer, Font_7x10, White);
-
-		ssd1306_SetCursor(10, 11);
-		sprintf(msg_buffer, "Month:  %d", set_date_time.month);
-		ssd1306_WriteString(msg_buffer, Font_7x10, White);
-
-		ssd1306_SetCursor(10, 22);
-		sprintf(msg_buffer, "Day:    %d", set_date_time.day);
-		ssd1306_WriteString(msg_buffer, Font_7x10, White);
-
-		ssd1306_SetCursor(0, (set_time_cursor * 10) + 1);
-		ssd1306_WriteString(">", Font_7x10, White);
-
-		if (editYearMode || editMonthMode || editDayMode || editHourMode || editMinuteMode || editSecondMode)
-		{
-			ssd1306_SetCursor(100, (set_time_cursor * 10) + 1);
-			ssd1306_WriteString("<--", Font_7x10, White);
-		}
-		else
-		{
-			ssd1306_SetCursor(120, (set_time_cursor * 10) + 1);
-			ssd1306_WriteString("<", Font_7x10, White);
-		}
-
-	}
-	else if (set_time_cursor >= 3 && set_time_cursor < 6)
-	{
-		// second page
-		ssd1306_SetCursor(10, 0);
-		sprintf(msg_buffer, "Hour:   %d", set_date_time.hour);
-		ssd1306_WriteString(msg_buffer, Font_7x10, White);
-
-		ssd1306_SetCursor(10, 11);
-		sprintf(msg_buffer, "Minute: %d", set_date_time.minute);
-		ssd1306_WriteString(msg_buffer, Font_7x10, White);
-
-		ssd1306_SetCursor(10, 22);
-		sprintf(msg_buffer, "Second: %d", set_date_time.second);
-		ssd1306_WriteString(msg_buffer, Font_7x10, White);
-
-		ssd1306_SetCursor(0, ((set_time_cursor - 3) * 10) + 1);
-		ssd1306_WriteString(">", Font_7x10, White);
-
-		if (editYearMode || editMonthMode || editDayMode || editHourMode || editMinuteMode || editSecondMode)
-		{
-			ssd1306_SetCursor(100, ((set_time_cursor - 3) * 10) + 1);
-			ssd1306_WriteString("<--", Font_7x10, White);
-		}
-		else
-		{
-			ssd1306_SetCursor(120, ((set_time_cursor - 3) * 10) + 1);
-			ssd1306_WriteString("<", Font_7x10, White);
-		}
-
-	}
-
-	ssd1306_UpdateScreen();
-}
-
-static void showHumidityMenu()
-{
-	ssd1306_Fill(Black); // clear display
-
-	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteString("Humidity", Font_7x10, White);
-
-	ssd1306_SetCursor(0, 14);
-	Float_transform(bme_values.humidity, 1, &sign_number, &integer_number, &fractional_number);
-	sprintf(msg_buffer, "%d.%.01ld %%", integer_number, fractional_number);
-	ssd1306_WriteString(msg_buffer, Font_11x18, White);
-	ssd1306_UpdateScreen();
-}
-
-static void showAltitudeMenu()
-{
-	ssd1306_Fill(Black); // clear display
-
-	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteString("Altitude", Font_7x10, White);
-
-	ssd1306_SetCursor(0, 14);
-	Float_transform(bme_values.altitude, 1, &sign_number, &integer_number, &fractional_number);
-	sprintf(msg_buffer, "%d.%.01ld m", integer_number, fractional_number);
-	ssd1306_WriteString(msg_buffer, Font_11x18, White);
-	ssd1306_UpdateScreen();
-}
-
-static void showPressureMenuHPA()
-{
-	ssd1306_Fill(Black); // clear display
-
-	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteString("Pressure", Font_7x10, White);
-
-	ssd1306_SetCursor(0, 14);
-	Float_transform(bme_values.preassureHPA, 1, &sign_number, &integer_number, &fractional_number);
-	sprintf(msg_buffer, "%d.%.01ld hPA", integer_number, fractional_number);
-	ssd1306_WriteString(msg_buffer, Font_11x18, White);
-	ssd1306_UpdateScreen();
-
-}
-
-static void showPressureMenuMMHG()
-{
-	ssd1306_Fill(Black); // clear display
-
-	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteString("Pressure", Font_7x10, White);
-
-	ssd1306_SetCursor(0, 14);
-	Float_transform(bme_values.preassureMMHG, 1, &sign_number, &integer_number, &fractional_number);
-	sprintf(msg_buffer, "%d.%.01ld mmHg", integer_number, fractional_number);
-	ssd1306_WriteString(msg_buffer, Font_11x18, White);
-	ssd1306_UpdateScreen();
-}
-
-static void showSettingsMenu()
-{
-	ssd1306_Fill(Black);
-
-	ssd1306_SetCursor(10, 4);
-	if (soundOn)
-		ssd1306_WriteString("Sound: ON", Font_7x10, White);
-	else if (!soundOn)
-		ssd1306_WriteString("Sound: OFF", Font_7x10, White);
-
-	ssd1306_SetCursor(10, 16);
-	ssd1306_WriteString("Set time", Font_7x10, White);
-
-	ssd1306_SetCursor(0, (settings_menu_cursor * 10) + 6);
-	ssd1306_WriteString(">", Font_7x10, White);
-	ssd1306_SetCursor(120, (settings_menu_cursor * 10) + 6);
-	ssd1306_WriteString("<", Font_7x10, White);
-
-	ssd1306_UpdateScreen();
-}
-
-static void makeBeepSound()
-{
-	if (soundOn)
-	{
-		// make beep sound
-		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 500);
-		osDelay(100);
-		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
-	} else {
-		osDelay(100);
-	}
-}
-
-static void setNewTime()
-{
-	DS3231_SetYear(set_date_time.year);
-	DS3231_SetMonth(set_date_time.month);
-	DS3231_SetDate(set_date_time.day);
-	DS3231_SetHour(set_date_time.hour);
-	DS3231_SetMinute(set_date_time.minute);
-	DS3231_SetSecond(set_date_time.second);
-}
-
-static void processKey(Key key)
-{
-	if (key == Left)
-	{
-		if (setTimeMode)
-		{
-			makeBeepSound();
-			setNewTime();
-			timeFlag = false;
-			setTimeMode = false;
-		}
-		else
-		{
-			makeBeepSound();
-			if (menu_kursor > 0)
-			{
-				menu_kursor--;
-			}
-			else if (menu_kursor == 0)
-			{
-				menu_kursor = MENU_PAGES_LENGTH - 1; // last element if manu_pages
-			}
-		}
-	}
-	else if (key == Right && !setTimeMode)
-	{
-		makeBeepSound();
-		if (menu_kursor < MENU_PAGES_LENGTH - 1)
-		{
-			menu_kursor++;
-		}
-		else if (menu_kursor == MENU_PAGES_LENGTH - 1)
-		{
-			menu_kursor = 0;
-		}
-	}
-	else if (key == Up)
-	{
-		if (setTimeMode)
-		{
-			makeBeepSound();
-			if (editYearMode)
-			{
-				if (set_date_time.year >= 2000 && set_date_time.year < 2199)
-					set_date_time.year++;
-			}
-			else if (editMonthMode)
-			{
-				if (set_date_time.month >= 1 && set_date_time.month < 12)
-					set_date_time.month++;
-			}
-			else if (editDayMode)
-			{
-				if (set_date_time.day >= 1 && set_date_time.day < 31)
-					set_date_time.day++;
-			}
-			else if (editHourMode)
-			{
-				if (set_date_time.hour >= 0 && set_date_time.hour < 23)
-					set_date_time.hour++;
-			}
-			else if (editMinuteMode)
-			{
-				if (set_date_time.minute >= 0 && set_date_time.minute < 59)
-					set_date_time.minute++;
-			}
-			else if (editSecondMode)
-			{
-				if (set_date_time.second >= 0 && set_date_time.second < 59)
-					set_date_time.second++;
-			}
-			else
-			{
-				if (set_time_cursor > 0)
-					set_time_cursor--;
-			}
-
-		}
-		else
-		{
-			if (menu_pages[menu_kursor] == TemperatureMenu)
-			{
-				makeBeepSound();
-				if (temp_menu_kursor == 0)
-					temp_menu_kursor = 1;
-				else if (temp_menu_kursor == 1)
-					temp_menu_kursor = 0;
-			}
-			if (menu_pages[menu_kursor] == PreassureMenu)
-			{
-				makeBeepSound();
-				if (press_menu_kursor == 0)
-					press_menu_kursor = 1;
-				else if (press_menu_kursor == 1)
-					press_menu_kursor = 0;
-			}
-			if (menu_pages[menu_kursor] == BatteryMenu)
-			{
-				makeBeepSound();
-				if (batt_menu_kursor == 0)
-					batt_menu_kursor = 1;
-				else if (batt_menu_kursor == 1)
-					batt_menu_kursor = 0;
-			}
-			if (menu_pages[menu_kursor] == SettingsMenu)
-			{
-				makeBeepSound();
-				if (settings_menu_cursor > 0)
-					settings_menu_cursor--;
-			}
-		}
-
-	}
-	else if (key == Down)
-	{
-		if (setTimeMode)
-		{
-			makeBeepSound();
-			if (editYearMode)
-			{
-				if (set_date_time.year > 2000 && set_date_time.year <= 2199)
-					set_date_time.year--;
-			}
-			else if (editMonthMode)
-			{
-				if (set_date_time.month > 1 && set_date_time.month <= 12)
-					set_date_time.month--;
-			}
-			else if (editDayMode)
-			{
-				if (set_date_time.day > 1 && set_date_time.day <= 31)
-					set_date_time.day--;
-			}
-			else if (editHourMode)
-			{
-				if (set_date_time.hour > 0 && set_date_time.hour <= 23)
-					set_date_time.hour--;
-			}
-			else if (editMinuteMode)
-			{
-				if (set_date_time.minute > 0 && set_date_time.minute <= 59)
-					set_date_time.minute--;
-			}
-			else if (editSecondMode)
-			{
-				if (set_date_time.second > 0 && set_date_time.second <= 59)
-					set_date_time.second--;
-			}
-			else
-			{
-				if (set_time_cursor < 5)
-					set_time_cursor++;
-			}
-		}
-		else
-		{
-			if (menu_pages[menu_kursor] == TemperatureMenu)
-			{
-				makeBeepSound();
-				if (temp_menu_kursor == 0)
-					temp_menu_kursor = 1;
-				else if (temp_menu_kursor == 1)
-					temp_menu_kursor = 0;
-			}
-			if (menu_pages[menu_kursor] == PreassureMenu)
-			{
-				makeBeepSound();
-				if (press_menu_kursor == 0)
-					press_menu_kursor = 1;
-				else if (press_menu_kursor == 1)
-					press_menu_kursor = 0;
-			}
-			if (menu_pages[menu_kursor] == BatteryMenu)
-			{
-				makeBeepSound();
-				if (batt_menu_kursor == 0)
-					batt_menu_kursor = 1;
-				else if (batt_menu_kursor == 1)
-					batt_menu_kursor = 0;
-			}
-			if (menu_pages[menu_kursor] == SettingsMenu)
-			{
-				makeBeepSound();
-				if (settings_menu_cursor < 1)
-					settings_menu_cursor++;
-			}
-		}
-
-	}
-	else if (key == Middle)
-	{
-		if (menu_pages[menu_kursor] == SettingsMenu)
-		{
-			makeBeepSound();
-			if (setTimeMode)
-			{
-				switch (set_time_cursor)
-				{
-				case 0:
-					editYearMode = !editYearMode;
-					break;
-				case 1:
-					editMonthMode = !editMonthMode;
-					break;
-				case 2:
-					editDayMode = !editDayMode;
-					break;
-				case 3:
-					editHourMode = !editHourMode;
-					break;
-				case 4:
-					editMinuteMode = !editMinuteMode;
-					break;
-				case 5:
-					editSecondMode = !editSecondMode;
-					break;
-				}
-			}
-			else
-			{
-				if (settings_menu_cursor == 0)
-					soundOn = !soundOn;
-				else if (settings_menu_cursor == 1)
-					setTimeMode = true;
-			}
-		}
-	}
-}
 /* USER CODE END Application */
 

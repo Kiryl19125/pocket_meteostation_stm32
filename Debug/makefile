@@ -16,6 +16,7 @@ RM := rm -rf
 -include Drivers/STM32F3xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/ssd1306/subdir.mk
+-include Core/Src/pocket_meteostation/subdir.mk
 -include Core/Src/ds3231/subdir.mk
 -include Core/Src/Keypad/subdir.mk
 -include Core/Src/Float_transform/subdir.mk

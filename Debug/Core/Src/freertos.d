@@ -42,13 +42,12 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h \
+ ../Core/Inc/pocket_meteostation/pocket_meteostation.h \
+ ../Core/Inc/Keypad/Keypad.h \
+ ../Core/Inc/Float_transform/Float_transform.h \
+ ../Core/Inc/BME280/BME280.h ../Core/Inc/ds3231/ds3231_for_stm32_hal.h \
  ../Core/Inc/adc.h ../Core/Inc/main.h ../Core/Inc/i2c.h ../Core/Inc/tim.h \
- ../Core/Inc/usart.h ../Core/Inc/gpio.h ../Core/Inc/ssd1306/ssd1306.h \
- ../Core/Inc/ssd1306/ssd1306_conf.h ../Core/Inc/ssd1306/ssd1306_tests.h \
- ../Core/Inc/ssd1306/ssd1306_fonts.h ../Core/Inc/ssd1306/ssd1306.h \
- ../Core/Inc/Keypad/Keypad.h ../Core/Inc/BME280/BME280.h \
- ../Core/Inc/ds3231/ds3231_for_stm32_hal.h \
- ../Core/Inc/Float_transform/Float_transform.h
+ ../Core/Inc/usart.h ../Core/Inc/gpio.h
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h:
@@ -93,18 +92,14 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h:
+../Core/Inc/pocket_meteostation/pocket_meteostation.h:
+../Core/Inc/Keypad/Keypad.h:
+../Core/Inc/Float_transform/Float_transform.h:
+../Core/Inc/BME280/BME280.h:
+../Core/Inc/ds3231/ds3231_for_stm32_hal.h:
 ../Core/Inc/adc.h:
 ../Core/Inc/main.h:
 ../Core/Inc/i2c.h:
 ../Core/Inc/tim.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/gpio.h:
-../Core/Inc/ssd1306/ssd1306.h:
-../Core/Inc/ssd1306/ssd1306_conf.h:
-../Core/Inc/ssd1306/ssd1306_tests.h:
-../Core/Inc/ssd1306/ssd1306_fonts.h:
-../Core/Inc/ssd1306/ssd1306.h:
-../Core/Inc/Keypad/Keypad.h:
-../Core/Inc/BME280/BME280.h:
-../Core/Inc/ds3231/ds3231_for_stm32_hal.h:
-../Core/Inc/Float_transform/Float_transform.h:

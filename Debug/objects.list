@@ -15,6 +15,7 @@
 "./Core/Src/tim.o"
 "./Core/Src/usart.o"
 "./Core/Src/ds3231/ds3231_for_stm32_hal.o"
+"./Core/Src/pocket_meteostation/pocket_meteostation.o"
 "./Core/Src/ssd1306/ssd1306.o"
 "./Core/Src/ssd1306/ssd1306_fonts.o"
 "./Core/Src/ssd1306/ssd1306_tests.o"
