@@ -1,7 +1,7 @@
-../Core/Src/freertos.c:260:6:MX_FREERTOS_Init	1
-../Core/Src/freertos.c:318:6:StartReadBattVoltageTask	1
-../Core/Src/freertos.c:347:6:StartRenderUITask	15
-../Core/Src/freertos.c:412:6:StartPollKeypadTask	2
-../Core/Src/freertos.c:438:6:StartReadBMEValuesTask	1
-../Core/Src/freertos.c:470:6:StartReadDateTimeTask	1
-../Core/Src/freertos.c:495:6:StartBlinkStatusLEDTask	1
+../Core/Src/freertos.c:136:6:MX_FREERTOS_Init	1
+../Core/Src/freertos.c:194:6:StartReadBattVoltageTask	1
+../Core/Src/freertos.c:223:6:StartRenderUITask	15
+../Core/Src/freertos.c:288:6:StartPollKeypadTask	2
+../Core/Src/freertos.c:314:6:StartReadBMEValuesTask	1
+../Core/Src/freertos.c:346:6:StartReadDateTimeTask	1
+../Core/Src/freertos.c:371:6:StartBlinkStatusLEDTask	1

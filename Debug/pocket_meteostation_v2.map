@@ -8815,87 +8815,87 @@ LOAD /opt/st/stm32cubeide_1.15.1/plugins/com.st.stm32cube.ide.mcu.externaltools.
 LOAD /opt/st/stm32cubeide_1.15.1/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.linux64_1.0.100.202403111256/tools/bin/../lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libm.a
 LOAD /opt/st/stm32cubeide_1.15.1/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.linux64_1.0.100.202403111256/tools/bin/../lib/gcc/arm-none-eabi/12.3.1/thumb/v7e-m+fp/hard/libgcc.a
 
-.debug_info     0x00000000    0x248af
+.debug_info     0x00000000    0x248aa
  .debug_info    0x00000000      0xe8d ./Core/Src/BME280/BME280.o
  .debug_info    0x00000e8d      0x17c ./Core/Src/Float_transform/Float_transform.o
  .debug_info    0x00001009      0x223 ./Core/Src/Keypad/Keypad.o
  .debug_info    0x0000122c      0xa00 ./Core/Src/adc.o
- .debug_info    0x00001c2c     0x105c ./Core/Src/freertos.o
- .debug_info    0x00002c88      0x33d ./Core/Src/gpio.o
- .debug_info    0x00002fc5      0x8b4 ./Core/Src/i2c.o
- .debug_info    0x00003879     0x11c5 ./Core/Src/main.o
- .debug_info    0x00004a3e      0x3b7 ./Core/Src/stm32f3xx_hal_msp.o
- .debug_info    0x00004df5      0xac2 ./Core/Src/stm32f3xx_hal_timebase_tim.o
- .debug_info    0x000058b7      0x6a8 ./Core/Src/stm32f3xx_it.o
- .debug_info    0x00005f5f      0x6a3 ./Core/Src/syscalls.o
- .debug_info    0x00006602      0x168 ./Core/Src/sysmem.o
- .debug_info    0x0000676a      0x407 ./Core/Src/system_stm32f3xx.o
- .debug_info    0x00006b71      0xa78 ./Core/Src/tim.o
- .debug_info    0x000075e9      0x91d ./Core/Src/usart.o
- .debug_info    0x00007f06      0xf5f ./Core/Src/ds3231/ds3231_for_stm32_hal.o
- .debug_info    0x00008e65      0xd57 ./Core/Src/pocket_meteostation/pocket_meteostation.o
- .debug_info    0x00009bbc     0x125a ./Core/Src/ssd1306/ssd1306.o
- .debug_info    0x0000ae16      0x2a4 ./Core/Src/ssd1306/ssd1306_fonts.o
- .debug_info    0x0000b0ba       0x30 ./Core/Startup/startup_stm32f303retx.o
- .debug_info    0x0000b0ea      0x804 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.o
- .debug_info    0x0000b8ee     0x15b2 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.o
- .debug_info    0x0000cea0      0xd14 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.o
- .debug_info    0x0000dbb4      0x6a6 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
- .debug_info    0x0000e25a     0x20c3 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.o
- .debug_info    0x0001031d      0x8c0 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.o
- .debug_info    0x00010bdd     0x149a ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
- .debug_info    0x00012077      0x61b ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.o
- .debug_info    0x00012692     0x2a70 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
- .debug_info    0x00015102     0x156d ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
- .debug_info    0x0001666f     0x39a8 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
- .debug_info    0x0001a017     0x4059 ./Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.o
- .debug_info    0x0001e070      0x2aa ./Middlewares/Third_Party/FreeRTOS/Source/list.o
- .debug_info    0x0001e31a     0x1abf ./Middlewares/Third_Party/FreeRTOS/Source/queue.o
- .debug_info    0x0001fdd9     0x27b8 ./Middlewares/Third_Party/FreeRTOS/Source/tasks.o
- .debug_info    0x00022591     0x1a7d ./Middlewares/Third_Party/FreeRTOS/Source/timers.o
- .debug_info    0x0002400e      0x4de ./Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.o
- .debug_info    0x000244ec      0x3c3 ./Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
+ .debug_info    0x00001c2c     0x1057 ./Core/Src/freertos.o
+ .debug_info    0x00002c83      0x33d ./Core/Src/gpio.o
+ .debug_info    0x00002fc0      0x8b4 ./Core/Src/i2c.o
+ .debug_info    0x00003874     0x11c5 ./Core/Src/main.o
+ .debug_info    0x00004a39      0x3b7 ./Core/Src/stm32f3xx_hal_msp.o
+ .debug_info    0x00004df0      0xac2 ./Core/Src/stm32f3xx_hal_timebase_tim.o
+ .debug_info    0x000058b2      0x6a8 ./Core/Src/stm32f3xx_it.o
+ .debug_info    0x00005f5a      0x6a3 ./Core/Src/syscalls.o
+ .debug_info    0x000065fd      0x168 ./Core/Src/sysmem.o
+ .debug_info    0x00006765      0x407 ./Core/Src/system_stm32f3xx.o
+ .debug_info    0x00006b6c      0xa78 ./Core/Src/tim.o
+ .debug_info    0x000075e4      0x91d ./Core/Src/usart.o
+ .debug_info    0x00007f01      0xf5f ./Core/Src/ds3231/ds3231_for_stm32_hal.o
+ .debug_info    0x00008e60      0xd57 ./Core/Src/pocket_meteostation/pocket_meteostation.o
+ .debug_info    0x00009bb7     0x125a ./Core/Src/ssd1306/ssd1306.o
+ .debug_info    0x0000ae11      0x2a4 ./Core/Src/ssd1306/ssd1306_fonts.o
+ .debug_info    0x0000b0b5       0x30 ./Core/Startup/startup_stm32f303retx.o
+ .debug_info    0x0000b0e5      0x804 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.o
+ .debug_info    0x0000b8e9     0x15b2 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.o
+ .debug_info    0x0000ce9b      0xd14 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.o
+ .debug_info    0x0000dbaf      0x6a6 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
+ .debug_info    0x0000e255     0x20c3 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.o
+ .debug_info    0x00010318      0x8c0 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.o
+ .debug_info    0x00010bd8     0x149a ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+ .debug_info    0x00012072      0x61b ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.o
+ .debug_info    0x0001268d     0x2a70 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+ .debug_info    0x000150fd     0x156d ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
+ .debug_info    0x0001666a     0x39a8 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+ .debug_info    0x0001a012     0x4059 ./Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.o
+ .debug_info    0x0001e06b      0x2aa ./Middlewares/Third_Party/FreeRTOS/Source/list.o
+ .debug_info    0x0001e315     0x1abf ./Middlewares/Third_Party/FreeRTOS/Source/queue.o
+ .debug_info    0x0001fdd4     0x27b8 ./Middlewares/Third_Party/FreeRTOS/Source/tasks.o
+ .debug_info    0x0002258c     0x1a7d ./Middlewares/Third_Party/FreeRTOS/Source/timers.o
+ .debug_info    0x00024009      0x4de ./Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.o
+ .debug_info    0x000244e7      0x3c3 ./Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
 
-.debug_abbrev   0x00000000     0x5409
+.debug_abbrev   0x00000000     0x5438
  .debug_abbrev  0x00000000      0x2c5 ./Core/Src/BME280/BME280.o
  .debug_abbrev  0x000002c5       0xb4 ./Core/Src/Float_transform/Float_transform.o
  .debug_abbrev  0x00000379      0x145 ./Core/Src/Keypad/Keypad.o
  .debug_abbrev  0x000004be      0x1ee ./Core/Src/adc.o
- .debug_abbrev  0x000006ac      0x260 ./Core/Src/freertos.o
- .debug_abbrev  0x0000090c      0x151 ./Core/Src/gpio.o
- .debug_abbrev  0x00000a5d      0x214 ./Core/Src/i2c.o
- .debug_abbrev  0x00000c71      0x261 ./Core/Src/main.o
- .debug_abbrev  0x00000ed2      0x107 ./Core/Src/stm32f3xx_hal_msp.o
- .debug_abbrev  0x00000fd9      0x1f4 ./Core/Src/stm32f3xx_hal_timebase_tim.o
- .debug_abbrev  0x000011cd      0x17d ./Core/Src/stm32f3xx_it.o
- .debug_abbrev  0x0000134a      0x1b6 ./Core/Src/syscalls.o
- .debug_abbrev  0x00001500       0xbc ./Core/Src/sysmem.o
- .debug_abbrev  0x000015bc      0x11a ./Core/Src/system_stm32f3xx.o
- .debug_abbrev  0x000016d6      0x218 ./Core/Src/tim.o
- .debug_abbrev  0x000018ee      0x1f5 ./Core/Src/usart.o
- .debug_abbrev  0x00001ae3      0x305 ./Core/Src/ds3231/ds3231_for_stm32_hal.o
- .debug_abbrev  0x00001de8      0x244 ./Core/Src/pocket_meteostation/pocket_meteostation.o
- .debug_abbrev  0x0000202c      0x362 ./Core/Src/ssd1306/ssd1306.o
- .debug_abbrev  0x0000238e       0xcf ./Core/Src/ssd1306/ssd1306_fonts.o
- .debug_abbrev  0x0000245d       0x24 ./Core/Startup/startup_stm32f303retx.o
- .debug_abbrev  0x00002481      0x215 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.o
- .debug_abbrev  0x00002696      0x28e ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.o
- .debug_abbrev  0x00002924      0x31e ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.o
- .debug_abbrev  0x00002c42      0x1ca ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
- .debug_abbrev  0x00002e0c      0x260 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.o
- .debug_abbrev  0x0000306c      0x1c2 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.o
- .debug_abbrev  0x0000322e      0x300 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
- .debug_abbrev  0x0000352e      0x221 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.o
- .debug_abbrev  0x0000374f      0x278 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
- .debug_abbrev  0x000039c7      0x283 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
- .debug_abbrev  0x00003c4a      0x2d1 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
- .debug_abbrev  0x00003f1b      0x465 ./Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.o
- .debug_abbrev  0x00004380       0xf5 ./Middlewares/Third_Party/FreeRTOS/Source/list.o
- .debug_abbrev  0x00004475      0x3ce ./Middlewares/Third_Party/FreeRTOS/Source/queue.o
- .debug_abbrev  0x00004843      0x3fe ./Middlewares/Third_Party/FreeRTOS/Source/tasks.o
- .debug_abbrev  0x00004c41      0x367 ./Middlewares/Third_Party/FreeRTOS/Source/timers.o
- .debug_abbrev  0x00004fa8      0x25c ./Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.o
- .debug_abbrev  0x00005204      0x205 ./Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
+ .debug_abbrev  0x000006ac      0x28f ./Core/Src/freertos.o
+ .debug_abbrev  0x0000093b      0x151 ./Core/Src/gpio.o
+ .debug_abbrev  0x00000a8c      0x214 ./Core/Src/i2c.o
+ .debug_abbrev  0x00000ca0      0x261 ./Core/Src/main.o
+ .debug_abbrev  0x00000f01      0x107 ./Core/Src/stm32f3xx_hal_msp.o
+ .debug_abbrev  0x00001008      0x1f4 ./Core/Src/stm32f3xx_hal_timebase_tim.o
+ .debug_abbrev  0x000011fc      0x17d ./Core/Src/stm32f3xx_it.o
+ .debug_abbrev  0x00001379      0x1b6 ./Core/Src/syscalls.o
+ .debug_abbrev  0x0000152f       0xbc ./Core/Src/sysmem.o
+ .debug_abbrev  0x000015eb      0x11a ./Core/Src/system_stm32f3xx.o
+ .debug_abbrev  0x00001705      0x218 ./Core/Src/tim.o
+ .debug_abbrev  0x0000191d      0x1f5 ./Core/Src/usart.o
+ .debug_abbrev  0x00001b12      0x305 ./Core/Src/ds3231/ds3231_for_stm32_hal.o
+ .debug_abbrev  0x00001e17      0x244 ./Core/Src/pocket_meteostation/pocket_meteostation.o
+ .debug_abbrev  0x0000205b      0x362 ./Core/Src/ssd1306/ssd1306.o
+ .debug_abbrev  0x000023bd       0xcf ./Core/Src/ssd1306/ssd1306_fonts.o
+ .debug_abbrev  0x0000248c       0x24 ./Core/Startup/startup_stm32f303retx.o
+ .debug_abbrev  0x000024b0      0x215 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.o
+ .debug_abbrev  0x000026c5      0x28e ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.o
+ .debug_abbrev  0x00002953      0x31e ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.o
+ .debug_abbrev  0x00002c71      0x1ca ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.o
+ .debug_abbrev  0x00002e3b      0x260 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.o
+ .debug_abbrev  0x0000309b      0x1c2 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.o
+ .debug_abbrev  0x0000325d      0x300 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.o
+ .debug_abbrev  0x0000355d      0x221 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.o
+ .debug_abbrev  0x0000377e      0x278 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.o
+ .debug_abbrev  0x000039f6      0x283 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.o
+ .debug_abbrev  0x00003c79      0x2d1 ./Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.o
+ .debug_abbrev  0x00003f4a      0x465 ./Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.o
+ .debug_abbrev  0x000043af       0xf5 ./Middlewares/Third_Party/FreeRTOS/Source/list.o
+ .debug_abbrev  0x000044a4      0x3ce ./Middlewares/Third_Party/FreeRTOS/Source/queue.o
+ .debug_abbrev  0x00004872      0x3fe ./Middlewares/Third_Party/FreeRTOS/Source/tasks.o
+ .debug_abbrev  0x00004c70      0x367 ./Middlewares/Third_Party/FreeRTOS/Source/timers.o
+ .debug_abbrev  0x00004fd7      0x25c ./Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.o
+ .debug_abbrev  0x00005233      0x205 ./Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
 
 .debug_aranges  0x00000000     0x1dc0
  .debug_aranges
